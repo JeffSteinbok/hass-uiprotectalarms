@@ -1,0 +1,2018 @@
+[
+    {
+        "name": "CO Alarm",
+        "enable": true,
+        "isCreatedBySystem": true,
+        "editable": false,
+        "sources": [],
+        "conditions": [
+            {
+                "condition": {
+                    "type": "is",
+                    "source": "audio_alarm_co"
+                }
+            }
+        ],
+        "schedules": [],
+        "actions": [
+            {
+                "type": "SEND_NOTIFICATION",
+                "metadata": {
+                    "receivers": [
+                        {
+                            "user": "**USERID1**",
+                            "channels": [],
+                            "schedules": [
+                                {
+                                    "schedule": {
+                                        "type": "is",
+                                        "unit": "location",
+                                        "values": [
+                                            "allAway"
+                                        ]
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            "user": "**USERID2**",
+                            "channels": [],
+                            "schedules": []
+                        },
+                        {
+                            "user": "**USERID3**",
+                            "channels": [],
+                            "schedules": []
+                        }
+                    ]
+                },
+                "order": -1
+            }
+        ],
+        "userId": "**USERID1**",
+        "status": {
+            "lastExecutedAt": null,
+            "total": 0
+        },
+        "cooldown": {
+            "enable": false,
+            "timeout": 600000
+        },
+        "id": "6729da9901584d03e4001889",
+        "deleted": false,
+        "createdAt": 1730796185243
+    },
+    {
+        "name": "Smoke Alarm",
+        "enable": true,
+        "isCreatedBySystem": true,
+        "editable": false,
+        "sources": [],
+        "conditions": [
+            {
+                "condition": {
+                    "type": "is",
+                    "source": "audio_alarm_smoke"
+                }
+            }
+        ],
+        "schedules": [],
+        "actions": [
+            {
+                "type": "SEND_NOTIFICATION",
+                "metadata": {
+                    "receivers": [
+                        {
+                            "user": "**USERID1**",
+                            "channels": [],
+                            "schedules": [
+                                {
+                                    "schedule": {
+                                        "type": "is",
+                                        "unit": "location",
+                                        "values": [
+                                            "allAway"
+                                        ]
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            "user": "**USERID2**",
+                            "channels": [],
+                            "schedules": []
+                        },
+                        {
+                            "user": "**USERID3**",
+                            "channels": [],
+                            "schedules": []
+                        }
+                    ]
+                },
+                "order": -1
+            }
+        ],
+        "userId": "**USERID1**",
+        "status": {
+            "lastExecutedAt": null,
+            "total": 0
+        },
+        "cooldown": {
+            "enable": false,
+            "timeout": 600000
+        },
+        "id": "6729da99014c4d03e4001888",
+        "deleted": false,
+        "createdAt": 1730796185243
+    },
+    {
+        "name": "Baby Crying",
+        "enable": true,
+        "isCreatedBySystem": true,
+        "editable": false,
+        "sources": [],
+        "conditions": [
+            {
+                "condition": {
+                    "type": "is",
+                    "source": "audio_alarm_baby_cry"
+                }
+            }
+        ],
+        "schedules": [],
+        "actions": [
+            {
+                "type": "SEND_NOTIFICATION",
+                "metadata": {
+                    "receivers": [
+                        {
+                            "user": "**USERID1**",
+                            "channels": [],
+                            "schedules": [
+                                {
+                                    "schedule": {
+                                        "type": "is",
+                                        "unit": "location",
+                                        "values": [
+                                            "allAway"
+                                        ]
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            "user": "**USERID2**",
+                            "channels": [],
+                            "schedules": []
+                        },
+                        {
+                            "user": "**USERID3**",
+                            "channels": [],
+                            "schedules": []
+                        }
+                    ]
+                },
+                "order": -1
+            }
+        ],
+        "userId": "**USERID1**",
+        "status": {
+            "lastExecutedAt": null,
+            "total": 0
+        },
+        "cooldown": {
+            "enable": false,
+            "timeout": 600000
+        },
+        "id": "6729da99016f4d03e400188b",
+        "deleted": false,
+        "createdAt": 1730796185243
+    },
+    {
+        "name": "Siren",
+        "enable": true,
+        "isCreatedBySystem": true,
+        "editable": false,
+        "sources": [],
+        "conditions": [
+            {
+                "condition": {
+                    "type": "is",
+                    "source": "audio_alarm_siren"
+                }
+            }
+        ],
+        "schedules": [],
+        "actions": [
+            {
+                "type": "SEND_NOTIFICATION",
+                "metadata": {
+                    "receivers": [
+                        {
+                            "user": "**USERID1**",
+                            "channels": [],
+                            "schedules": [
+                                {
+                                    "schedule": {
+                                        "type": "is",
+                                        "unit": "location",
+                                        "values": [
+                                            "allAway"
+                                        ]
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            "user": "**USERID2**",
+                            "channels": [],
+                            "schedules": []
+                        },
+                        {
+                            "user": "**USERID3**",
+                            "channels": [],
+                            "schedules": []
+                        }
+                    ]
+                },
+                "order": -1
+            }
+        ],
+        "userId": "**USERID1**",
+        "status": {
+            "lastExecutedAt": null,
+            "total": 0
+        },
+        "cooldown": {
+            "enable": false,
+            "timeout": 600000
+        },
+        "id": "6729da9901644d03e400188a",
+        "deleted": false,
+        "createdAt": 1730796185243
+    },
+    {
+        "name": "Barking",
+        "enable": true,
+        "isCreatedBySystem": true,
+        "editable": false,
+        "sources": [],
+        "conditions": [
+            {
+                "condition": {
+                    "type": "is",
+                    "source": "audio_alarm_bark"
+                }
+            }
+        ],
+        "schedules": [],
+        "actions": [
+            {
+                "type": "SEND_NOTIFICATION",
+                "metadata": {
+                    "receivers": [
+                        {
+                            "user": "**USERID1**",
+                            "channels": [],
+                            "schedules": [
+                                {
+                                    "schedule": {
+                                        "type": "is",
+                                        "unit": "location",
+                                        "values": [
+                                            "allAway"
+                                        ]
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            "user": "**USERID2**",
+                            "channels": [],
+                            "schedules": []
+                        },
+                        {
+                            "user": "**USERID3**",
+                            "channels": [],
+                            "schedules": []
+                        }
+                    ]
+                },
+                "order": -1
+            }
+        ],
+        "userId": "**USERID1**",
+        "status": {
+            "lastExecutedAt": null,
+            "total": 0
+        },
+        "cooldown": {
+            "enable": false,
+            "timeout": 600000
+        },
+        "id": "6729da9901874d03e400188d",
+        "deleted": false,
+        "createdAt": 1730796185243
+    },
+    {
+        "name": "Speaking",
+        "enable": true,
+        "isCreatedBySystem": true,
+        "editable": false,
+        "sources": [],
+        "conditions": [
+            {
+                "condition": {
+                    "type": "is",
+                    "source": "audio_alarm_speak"
+                }
+            }
+        ],
+        "schedules": [],
+        "actions": [
+            {
+                "type": "SEND_NOTIFICATION",
+                "metadata": {
+                    "receivers": [
+                        {
+                            "user": "**USERID1**",
+                            "channels": [],
+                            "schedules": [
+                                {
+                                    "schedule": {
+                                        "type": "is",
+                                        "unit": "location",
+                                        "values": [
+                                            "allAway"
+                                        ]
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            "user": "**USERID2**",
+                            "channels": [],
+                            "schedules": []
+                        },
+                        {
+                            "user": "**USERID3**",
+                            "channels": [],
+                            "schedules": []
+                        }
+                    ]
+                },
+                "order": -1
+            }
+        ],
+        "userId": "**USERID1**",
+        "status": {
+            "lastExecutedAt": null,
+            "total": 0
+        },
+        "cooldown": {
+            "enable": false,
+            "timeout": 600000
+        },
+        "id": "6729da99017c4d03e400188c",
+        "deleted": false,
+        "createdAt": 1730796185243
+    },
+    {
+        "name": "Motion",
+        "enable": true,
+        "isCreatedBySystem": true,
+        "editable": false,
+        "sources": [],
+        "conditions": [
+            {
+                "condition": {
+                    "type": "is",
+                    "source": "motion"
+                }
+            }
+        ],
+        "schedules": [],
+        "actions": [
+            {
+                "type": "SEND_NOTIFICATION",
+                "metadata": {
+                    "receivers": [
+                        {
+                            "user": "**USERID1**",
+                            "channels": [],
+                            "schedules": [
+                                {
+                                    "schedule": {
+                                        "type": "is",
+                                        "unit": "location",
+                                        "values": [
+                                            "allAway"
+                                        ]
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            "user": "**USERID2**",
+                            "channels": [],
+                            "schedules": []
+                        },
+                        {
+                            "user": "**USERID3**",
+                            "channels": [],
+                            "schedules": []
+                        }
+                    ]
+                },
+                "order": -1
+            }
+        ],
+        "userId": "**USERID1**",
+        "status": {
+            "lastExecutedAt": 1732824458271,
+            "lastExecutedState": "ok",
+            "total": 639
+        },
+        "cooldown": {
+            "enable": false,
+            "timeout": 600000
+        },
+        "id": "6729da99010e4d03e4001883",
+        "deleted": false,
+        "createdAt": 1730796185242
+    },
+    {
+        "name": "Burglar",
+        "enable": true,
+        "isCreatedBySystem": true,
+        "editable": false,
+        "sources": [],
+        "conditions": [
+            {
+                "condition": {
+                    "type": "is",
+                    "source": "audio_alarm_burglar"
+                }
+            }
+        ],
+        "schedules": [],
+        "actions": [
+            {
+                "type": "SEND_NOTIFICATION",
+                "metadata": {
+                    "receivers": [
+                        {
+                            "user": "**USERID1**",
+                            "channels": [],
+                            "schedules": [
+                                {
+                                    "schedule": {
+                                        "type": "is",
+                                        "unit": "location",
+                                        "values": [
+                                            "allAway"
+                                        ]
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            "user": "**USERID2**",
+                            "channels": [],
+                            "schedules": []
+                        },
+                        {
+                            "user": "**USERID3**",
+                            "channels": [],
+                            "schedules": []
+                        }
+                    ]
+                },
+                "order": -1
+            }
+        ],
+        "userId": "**USERID1**",
+        "status": {
+            "lastExecutedAt": null,
+            "total": 0
+        },
+        "cooldown": {
+            "enable": false,
+            "timeout": 600000
+        },
+        "id": "6729da9901944d03e400188e",
+        "deleted": false,
+        "createdAt": 1730796185243
+    },
+    {
+        "name": "Person",
+        "enable": true,
+        "isCreatedBySystem": true,
+        "editable": false,
+        "sources": [],
+        "conditions": [
+            {
+                "condition": {
+                    "type": "is",
+                    "source": "person"
+                }
+            }
+        ],
+        "schedules": [],
+        "actions": [
+            {
+                "type": "SEND_NOTIFICATION",
+                "metadata": {
+                    "receivers": [
+                        {
+                            "user": "**USERID1**",
+                            "channels": [],
+                            "schedules": [
+                                {
+                                    "schedule": {
+                                        "type": "is",
+                                        "unit": "location",
+                                        "values": [
+                                            "allAway"
+                                        ]
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            "user": "**USERID2**",
+                            "channels": [],
+                            "schedules": []
+                        },
+                        {
+                            "user": "**USERID3**",
+                            "channels": [],
+                            "schedules": []
+                        }
+                    ]
+                },
+                "order": -1
+            }
+        ],
+        "userId": "**USERID1**",
+        "status": {
+            "lastExecutedAt": 1732828039821,
+            "lastExecutedState": "ok",
+            "total": 104
+        },
+        "cooldown": {
+            "enable": false,
+            "timeout": 600000
+        },
+        "id": "6729da99011a4d03e4001884",
+        "deleted": false,
+        "createdAt": 1730796185242
+    },
+    {
+        "name": "Package",
+        "enable": true,
+        "isCreatedBySystem": true,
+        "editable": false,
+        "sources": [],
+        "conditions": [
+            {
+                "condition": {
+                    "type": "is",
+                    "source": "package"
+                }
+            }
+        ],
+        "schedules": [],
+        "actions": [
+            {
+                "type": "SEND_NOTIFICATION",
+                "metadata": {
+                    "receivers": [
+                        {
+                            "user": "**USERID2**",
+                            "channels": [],
+                            "schedules": []
+                        },
+                        {
+                            "user": "**USERID3**",
+                            "channels": [],
+                            "schedules": []
+                        },
+                        {
+                            "user": "**USERID1**",
+                            "channels": [
+                                "push"
+                            ],
+                            "schedules": [
+                                {
+                                    "schedule": {
+                                        "type": "is",
+                                        "unit": "location",
+                                        "values": [
+                                            "allAway"
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                },
+                "order": -1
+            }
+        ],
+        "userId": "**USERID1**",
+        "status": {
+            "lastExecutedAt": 1732758656733,
+            "lastExecutedState": "ok",
+            "total": 1
+        },
+        "cooldown": {
+            "enable": false,
+            "timeout": 600000
+        },
+        "id": "6729da99013e4d03e4001887",
+        "deleted": false,
+        "createdAt": 1730796185243
+    },
+    {
+        "name": "Animal",
+        "enable": true,
+        "isCreatedBySystem": true,
+        "editable": false,
+        "sources": [],
+        "conditions": [
+            {
+                "condition": {
+                    "type": "is",
+                    "source": "animal"
+                }
+            }
+        ],
+        "schedules": [],
+        "actions": [
+            {
+                "type": "SEND_NOTIFICATION",
+                "metadata": {
+                    "receivers": [
+                        {
+                            "user": "**USERID1**",
+                            "channels": [],
+                            "schedules": [
+                                {
+                                    "schedule": {
+                                        "type": "is",
+                                        "unit": "location",
+                                        "values": [
+                                            "allAway"
+                                        ]
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            "user": "**USERID2**",
+                            "channels": [],
+                            "schedules": []
+                        },
+                        {
+                            "user": "**USERID3**",
+                            "channels": [],
+                            "schedules": []
+                        }
+                    ]
+                },
+                "order": -1
+            }
+        ],
+        "userId": "**USERID1**",
+        "status": {
+            "lastExecutedAt": null,
+            "total": 0
+        },
+        "cooldown": {
+            "enable": false,
+            "timeout": 600000
+        },
+        "id": "6729da9901324d03e4001886",
+        "deleted": false,
+        "createdAt": 1730796185243
+    },
+    {
+        "name": "Sense Alarm",
+        "enable": true,
+        "isCreatedBySystem": true,
+        "editable": false,
+        "sources": [],
+        "conditions": [
+            {
+                "condition": {
+                    "type": "is",
+                    "source": "sensor_alarm"
+                }
+            }
+        ],
+        "schedules": [],
+        "actions": [
+            {
+                "type": "SEND_NOTIFICATION",
+                "metadata": {
+                    "receivers": [
+                        {
+                            "user": "**USERID1**",
+                            "channels": [],
+                            "schedules": [
+                                {
+                                    "schedule": {
+                                        "type": "is",
+                                        "unit": "location",
+                                        "values": [
+                                            "allAway"
+                                        ]
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            "user": "**USERID2**",
+                            "channels": [],
+                            "schedules": []
+                        },
+                        {
+                            "user": "**USERID3**",
+                            "channels": [],
+                            "schedules": []
+                        }
+                    ]
+                },
+                "order": -1
+            }
+        ],
+        "userId": "**USERID1**",
+        "status": {
+            "lastExecutedAt": null,
+            "total": 0
+        },
+        "cooldown": {
+            "enable": false,
+            "timeout": 600000
+        },
+        "id": "6729da9901b94d03e4001891",
+        "deleted": false,
+        "createdAt": 1730796185243
+    },
+    {
+        "name": "Sense Low Battery",
+        "enable": true,
+        "isCreatedBySystem": true,
+        "editable": false,
+        "sources": [],
+        "conditions": [
+            {
+                "condition": {
+                    "type": "is",
+                    "source": "sensor_battery_low"
+                }
+            }
+        ],
+        "schedules": [],
+        "actions": [
+            {
+                "type": "SEND_NOTIFICATION",
+                "metadata": {
+                    "receivers": [
+                        {
+                            "user": "**USERID1**",
+                            "channels": [],
+                            "schedules": [
+                                {
+                                    "schedule": {
+                                        "type": "is",
+                                        "unit": "location",
+                                        "values": [
+                                            "allAway"
+                                        ]
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            "user": "**USERID2**",
+                            "channels": [],
+                            "schedules": []
+                        },
+                        {
+                            "user": "**USERID3**",
+                            "channels": [],
+                            "schedules": []
+                        }
+                    ]
+                },
+                "order": -1
+            }
+        ],
+        "userId": "**USERID1**",
+        "status": {
+            "lastExecutedAt": null,
+            "total": 0
+        },
+        "cooldown": {
+            "enable": false,
+            "timeout": 600000
+        },
+        "id": "6729da9901c54d03e4001892",
+        "deleted": false,
+        "createdAt": 1730796185243
+    },
+    {
+        "name": "Sense Water Leak",
+        "enable": true,
+        "isCreatedBySystem": true,
+        "editable": false,
+        "sources": [],
+        "conditions": [
+            {
+                "condition": {
+                    "type": "is",
+                    "source": "sensor_water_leak"
+                }
+            }
+        ],
+        "schedules": [],
+        "actions": [
+            {
+                "type": "SEND_NOTIFICATION",
+                "metadata": {
+                    "receivers": [
+                        {
+                            "user": "**USERID1**",
+                            "channels": [],
+                            "schedules": [
+                                {
+                                    "schedule": {
+                                        "type": "is",
+                                        "unit": "location",
+                                        "values": [
+                                            "allAway"
+                                        ]
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            "user": "**USERID2**",
+                            "channels": [],
+                            "schedules": []
+                        },
+                        {
+                            "user": "**USERID3**",
+                            "channels": [],
+                            "schedules": []
+                        }
+                    ]
+                },
+                "order": -1
+            }
+        ],
+        "userId": "**USERID1**",
+        "status": {
+            "lastExecutedAt": null,
+            "total": 0
+        },
+        "cooldown": {
+            "enable": false,
+            "timeout": 600000
+        },
+        "id": "6729da9901de4d03e4001894",
+        "deleted": false,
+        "createdAt": 1730796185243
+    },
+    {
+        "name": "Glass Breakage",
+        "enable": true,
+        "isCreatedBySystem": true,
+        "editable": false,
+        "sources": [],
+        "conditions": [
+            {
+                "condition": {
+                    "type": "is",
+                    "source": "audio_alarm_glass_break"
+                }
+            }
+        ],
+        "schedules": [],
+        "actions": [
+            {
+                "type": "SEND_NOTIFICATION",
+                "metadata": {
+                    "receivers": [
+                        {
+                            "user": "**USERID1**",
+                            "channels": [],
+                            "schedules": [
+                                {
+                                    "schedule": {
+                                        "type": "is",
+                                        "unit": "location",
+                                        "values": [
+                                            "allAway"
+                                        ]
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            "user": "**USERID2**",
+                            "channels": [],
+                            "schedules": []
+                        },
+                        {
+                            "user": "**USERID3**",
+                            "channels": [],
+                            "schedules": []
+                        }
+                    ]
+                },
+                "order": -1
+            }
+        ],
+        "userId": "**USERID1**",
+        "status": {
+            "lastExecutedAt": null,
+            "total": 0
+        },
+        "cooldown": {
+            "enable": false,
+            "timeout": 600000
+        },
+        "id": "6729da9901ac4d03e4001890",
+        "deleted": false,
+        "createdAt": 1730796185243
+    },
+    {
+        "name": "Device Adopted or Removed",
+        "enable": true,
+        "isCreatedBySystem": true,
+        "editable": false,
+        "sources": [],
+        "conditions": [
+            {
+                "condition": {
+                    "type": "is",
+                    "source": "device_adoption_state_changed"
+                }
+            }
+        ],
+        "schedules": [],
+        "actions": [
+            {
+                "type": "SEND_NOTIFICATION",
+                "metadata": {
+                    "receivers": [
+                        {
+                            "user": "**USERID2**",
+                            "channels": [],
+                            "schedules": []
+                        },
+                        {
+                            "user": "**USERID3**",
+                            "channels": [],
+                            "schedules": []
+                        },
+                        {
+                            "user": "**USERID1**",
+                            "channels": [
+                                "push"
+                            ],
+                            "schedules": []
+                        }
+                    ]
+                },
+                "order": -1
+            }
+        ],
+        "userId": "**USERID1**",
+        "status": {
+            "lastExecutedAt": null,
+            "total": 0
+        },
+        "cooldown": {
+            "enable": false,
+            "timeout": 600000
+        },
+        "id": "6729da9902244d03e400189a",
+        "deleted": false,
+        "createdAt": 1730796185245
+    },
+    {
+        "name": "Vehicle of interest",
+        "enable": true,
+        "isCreatedBySystem": true,
+        "editable": false,
+        "sources": [],
+        "conditions": [
+            {
+                "condition": {
+                    "type": "is",
+                    "source": "license_plate_of_interest"
+                }
+            }
+        ],
+        "schedules": [],
+        "actions": [
+            {
+                "type": "SEND_NOTIFICATION",
+                "metadata": {
+                    "receivers": [
+                        {
+                            "user": "**USERID1**",
+                            "channels": [],
+                            "schedules": [
+                                {
+                                    "schedule": {
+                                        "type": "is",
+                                        "unit": "location",
+                                        "values": [
+                                            "allAway"
+                                        ]
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            "user": "**USERID2**",
+                            "channels": [],
+                            "schedules": []
+                        },
+                        {
+                            "user": "**USERID3**",
+                            "channels": [],
+                            "schedules": []
+                        }
+                    ]
+                },
+                "order": -1
+            }
+        ],
+        "userId": "**USERID1**",
+        "status": {
+            "lastExecutedAt": null,
+            "total": 0
+        },
+        "cooldown": {
+            "enable": false,
+            "timeout": 600000
+        },
+        "id": "6729da9902014d03e4001897",
+        "deleted": false,
+        "createdAt": 1730796185244
+    },
+    {
+        "name": "Sense Extreme Values",
+        "enable": true,
+        "isCreatedBySystem": true,
+        "editable": false,
+        "sources": [],
+        "conditions": [
+            {
+                "condition": {
+                    "type": "is",
+                    "source": "sensor_extreme_value"
+                }
+            }
+        ],
+        "schedules": [],
+        "actions": [
+            {
+                "type": "SEND_NOTIFICATION",
+                "metadata": {
+                    "receivers": [
+                        {
+                            "user": "**USERID2**",
+                            "channels": [],
+                            "schedules": []
+                        },
+                        {
+                            "user": "**USERID3**",
+                            "channels": [],
+                            "schedules": []
+                        },
+                        {
+                            "user": "**USERID1**",
+                            "channels": [
+                                "push"
+                            ],
+                            "schedules": [
+                                {
+                                    "schedule": {
+                                        "type": "is",
+                                        "unit": "location",
+                                        "values": [
+                                            "allAway"
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                },
+                "order": -1
+            }
+        ],
+        "userId": "**USERID1**",
+        "status": {
+            "lastExecutedAt": null,
+            "total": 0
+        },
+        "cooldown": {
+            "enable": false,
+            "timeout": 600000
+        },
+        "id": "6729da9901d24d03e4001893",
+        "deleted": false,
+        "createdAt": 1730796185243
+    },
+    {
+        "name": "Application Issue",
+        "enable": true,
+        "isCreatedBySystem": true,
+        "editable": false,
+        "sources": [],
+        "conditions": [
+            {
+                "condition": {
+                    "type": "is",
+                    "source": "application_issue"
+                }
+            }
+        ],
+        "schedules": [],
+        "actions": [
+            {
+                "type": "SEND_NOTIFICATION",
+                "metadata": {
+                    "receivers": [
+                        {
+                            "user": "**USERID1**",
+                            "channels": [],
+                            "schedules": []
+                        },
+                        {
+                            "user": "**USERID2**",
+                            "channels": [],
+                            "schedules": []
+                        },
+                        {
+                            "user": "**USERID3**",
+                            "channels": [],
+                            "schedules": []
+                        }
+                    ]
+                },
+                "order": -1
+            }
+        ],
+        "userId": "**USERID1**",
+        "status": {
+            "lastExecutedAt": null,
+            "total": 0
+        },
+        "cooldown": {
+            "enable": false,
+            "timeout": 600000
+        },
+        "id": "6729da9902174d03e4001899",
+        "deleted": false,
+        "createdAt": 1730796185245
+    },
+    {
+        "name": "Person of interest",
+        "enable": true,
+        "isCreatedBySystem": true,
+        "editable": false,
+        "sources": [],
+        "conditions": [
+            {
+                "condition": {
+                    "type": "is",
+                    "source": "face_of_interest"
+                }
+            }
+        ],
+        "schedules": [],
+        "actions": [
+            {
+                "type": "SEND_NOTIFICATION",
+                "metadata": {
+                    "receivers": [
+                        {
+                            "user": "**USERID1**",
+                            "channels": [],
+                            "schedules": [
+                                {
+                                    "schedule": {
+                                        "type": "is",
+                                        "unit": "location",
+                                        "values": [
+                                            "allAway"
+                                        ]
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            "user": "**USERID2**",
+                            "channels": [],
+                            "schedules": []
+                        },
+                        {
+                            "user": "**USERID3**",
+                            "channels": [],
+                            "schedules": []
+                        }
+                    ]
+                },
+                "order": -1
+            }
+        ],
+        "userId": "**USERID1**",
+        "status": {
+            "lastExecutedAt": null,
+            "total": 0
+        },
+        "cooldown": {
+            "enable": false,
+            "timeout": 600000
+        },
+        "id": "6729da9901f54d03e4001896",
+        "deleted": false,
+        "createdAt": 1730796185243
+    },
+    {
+        "name": "Device Limitation Reached",
+        "enable": true,
+        "isCreatedBySystem": true,
+        "editable": false,
+        "sources": [],
+        "conditions": [
+            {
+                "condition": {
+                    "type": "is",
+                    "source": "camera_utilization_limit"
+                }
+            }
+        ],
+        "schedules": [],
+        "actions": [
+            {
+                "type": "SEND_NOTIFICATION",
+                "metadata": {
+                    "receivers": [
+                        {
+                            "user": "**USERID2**",
+                            "channels": [],
+                            "schedules": []
+                        },
+                        {
+                            "user": "**USERID3**",
+                            "channels": [],
+                            "schedules": []
+                        },
+                        {
+                            "user": "**USERID1**",
+                            "channels": [
+                                "push"
+                            ],
+                            "schedules": []
+                        }
+                    ]
+                },
+                "order": -1
+            }
+        ],
+        "userId": "**USERID1**",
+        "status": {
+            "lastExecutedAt": null,
+            "total": 0
+        },
+        "cooldown": {
+            "enable": false,
+            "timeout": 600000
+        },
+        "id": "6729da99022f4d03e400189b",
+        "deleted": false,
+        "createdAt": 1730796185245
+    },
+    {
+        "name": "Device Issue",
+        "enable": true,
+        "isCreatedBySystem": true,
+        "editable": false,
+        "sources": [],
+        "conditions": [
+            {
+                "condition": {
+                    "type": "is",
+                    "source": "device_issue"
+                }
+            }
+        ],
+        "schedules": [],
+        "actions": [
+            {
+                "type": "SEND_NOTIFICATION",
+                "metadata": {
+                    "receivers": [
+                        {
+                            "user": "**USERID2**",
+                            "channels": [],
+                            "schedules": []
+                        },
+                        {
+                            "user": "**USERID3**",
+                            "channels": [],
+                            "schedules": []
+                        },
+                        {
+                            "user": "**USERID1**",
+                            "channels": [
+                                "push"
+                            ],
+                            "schedules": []
+                        }
+                    ]
+                },
+                "order": -1
+            }
+        ],
+        "userId": "**USERID1**",
+        "status": {
+            "lastExecutedAt": null,
+            "total": 0
+        },
+        "cooldown": {
+            "enable": false,
+            "timeout": 600000
+        },
+        "id": "6729da99020c4d03e4001898",
+        "deleted": false,
+        "createdAt": 1730796185245
+    },
+    {
+        "name": "Sense Open or Close Status Changed",
+        "enable": true,
+        "isCreatedBySystem": true,
+        "editable": false,
+        "sources": [],
+        "conditions": [
+            {
+                "condition": {
+                    "type": "is",
+                    "source": "sensor_door_opened"
+                }
+            },
+            {
+                "condition": {
+                    "type": "is",
+                    "source": "sensor_door_closed"
+                }
+            }
+        ],
+        "schedules": [],
+        "actions": [
+            {
+                "type": "SEND_NOTIFICATION",
+                "metadata": {
+                    "receivers": [
+                        {
+                            "user": "**USERID1**",
+                            "channels": [],
+                            "schedules": [
+                                {
+                                    "schedule": {
+                                        "type": "is",
+                                        "unit": "location",
+                                        "values": [
+                                            "allAway"
+                                        ]
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            "user": "**USERID2**",
+                            "channels": [],
+                            "schedules": []
+                        },
+                        {
+                            "user": "**USERID3**",
+                            "channels": [],
+                            "schedules": []
+                        }
+                    ]
+                },
+                "order": -1
+            }
+        ],
+        "userId": "**USERID1**",
+        "status": {
+            "lastExecutedAt": null,
+            "total": 0
+        },
+        "cooldown": {
+            "enable": false,
+            "timeout": 600000
+        },
+        "id": "6729da9901e94d03e4001895",
+        "deleted": false,
+        "createdAt": 1730796185243
+    },
+    {
+        "name": "Admin Change Settings",
+        "enable": true,
+        "isCreatedBySystem": true,
+        "editable": false,
+        "sources": [],
+        "conditions": [
+            {
+                "condition": {
+                    "type": "is",
+                    "source": "admin_settings_change"
+                }
+            }
+        ],
+        "schedules": [],
+        "actions": [
+            {
+                "type": "SEND_NOTIFICATION",
+                "metadata": {
+                    "receivers": [
+                        {
+                            "user": "**USERID1**",
+                            "channels": [],
+                            "schedules": []
+                        },
+                        {
+                            "user": "**USERID2**",
+                            "channels": [],
+                            "schedules": []
+                        },
+                        {
+                            "user": "**USERID3**",
+                            "channels": [],
+                            "schedules": []
+                        }
+                    ]
+                },
+                "order": -1
+            }
+        ],
+        "userId": "**USERID1**",
+        "status": {
+            "lastExecutedAt": 1732761920926,
+            "lastExecutedState": "ok",
+            "total": 1
+        },
+        "cooldown": {
+            "enable": false,
+            "timeout": 600000
+        },
+        "id": "6729da99025e4d03e400189f",
+        "deleted": false,
+        "createdAt": 1730796185245
+    },
+    {
+        "name": "Vehicle",
+        "enable": true,
+        "isCreatedBySystem": true,
+        "editable": false,
+        "sources": [],
+        "conditions": [
+            {
+                "condition": {
+                    "type": "is",
+                    "source": "vehicle"
+                }
+            }
+        ],
+        "schedules": [],
+        "actions": [
+            {
+                "type": "SEND_NOTIFICATION",
+                "metadata": {
+                    "receivers": [
+                        {
+                            "user": "**USERID1**",
+                            "channels": [],
+                            "schedules": [
+                                {
+                                    "schedule": {
+                                        "type": "is",
+                                        "unit": "location",
+                                        "values": [
+                                            "allAway"
+                                        ]
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            "user": "**USERID2**",
+                            "channels": [],
+                            "schedules": []
+                        },
+                        {
+                            "user": "**USERID3**",
+                            "channels": [],
+                            "schedules": []
+                        }
+                    ]
+                },
+                "order": -1
+            }
+        ],
+        "userId": "**USERID1**",
+        "status": {
+            "lastExecutedAt": 1732829233111,
+            "lastExecutedState": "ok",
+            "total": 74
+        },
+        "cooldown": {
+            "enable": false,
+            "timeout": 600000
+        },
+        "id": "6729da9901264d03e4001885",
+        "deleted": false,
+        "createdAt": 1730796185243
+    },
+    {
+        "name": "Admin Geolocation",
+        "enable": true,
+        "isCreatedBySystem": true,
+        "editable": false,
+        "sources": [],
+        "conditions": [
+            {
+                "condition": {
+                    "type": "is",
+                    "source": "admin_geolocation"
+                }
+            }
+        ],
+        "schedules": [],
+        "actions": [
+            {
+                "type": "SEND_NOTIFICATION",
+                "metadata": {
+                    "receivers": [
+                        {
+                            "user": "**USERID1**",
+                            "channels": [],
+                            "schedules": []
+                        },
+                        {
+                            "user": "**USERID2**",
+                            "channels": [],
+                            "schedules": []
+                        },
+                        {
+                            "user": "**USERID3**",
+                            "channels": [],
+                            "schedules": []
+                        }
+                    ]
+                },
+                "order": -1
+            }
+        ],
+        "userId": "**USERID1**",
+        "status": {
+            "lastExecutedAt": 1732820704716,
+            "lastExecutedState": "ok",
+            "total": 3
+        },
+        "cooldown": {
+            "enable": false,
+            "timeout": 600000
+        },
+        "id": "6729da9902774d03e40018a1",
+        "deleted": false,
+        "createdAt": 1730796185245
+    },
+    {
+        "name": "Device Update Status",
+        "enable": true,
+        "isCreatedBySystem": true,
+        "editable": false,
+        "sources": [],
+        "conditions": [
+            {
+                "condition": {
+                    "type": "is",
+                    "source": "device_update_status_change"
+                }
+            }
+        ],
+        "schedules": [],
+        "actions": [
+            {
+                "type": "SEND_NOTIFICATION",
+                "metadata": {
+                    "receivers": [
+                        {
+                            "user": "**USERID2**",
+                            "channels": [],
+                            "schedules": []
+                        },
+                        {
+                            "user": "**USERID3**",
+                            "channels": [],
+                            "schedules": []
+                        },
+                        {
+                            "user": "**USERID1**",
+                            "channels": [
+                                "push"
+                            ],
+                            "schedules": []
+                        }
+                    ]
+                },
+                "order": -1
+            }
+        ],
+        "userId": "**USERID1**",
+        "status": {
+            "lastExecutedAt": null,
+            "total": 0
+        },
+        "cooldown": {
+            "enable": false,
+            "timeout": 600000
+        },
+        "id": "6729da9902484d03e400189d",
+        "deleted": false,
+        "createdAt": 1730796185245
+    },
+    {
+        "name": "Admin Access",
+        "enable": true,
+        "isCreatedBySystem": true,
+        "editable": false,
+        "sources": [],
+        "conditions": [
+            {
+                "condition": {
+                    "type": "is",
+                    "source": "admin_access"
+                }
+            }
+        ],
+        "schedules": [],
+        "actions": [
+            {
+                "type": "SEND_NOTIFICATION",
+                "metadata": {
+                    "receivers": [
+                        {
+                            "user": "**USERID1**",
+                            "channels": [],
+                            "schedules": []
+                        },
+                        {
+                            "user": "**USERID2**",
+                            "channels": [],
+                            "schedules": []
+                        },
+                        {
+                            "user": "**USERID3**",
+                            "channels": [],
+                            "schedules": []
+                        }
+                    ]
+                },
+                "order": -1
+            }
+        ],
+        "userId": "**USERID1**",
+        "status": {
+            "lastExecutedAt": 1732829898957,
+            "lastExecutedState": "ok",
+            "total": 20
+        },
+        "cooldown": {
+            "enable": false,
+            "timeout": 600000
+        },
+        "id": "6729da9902534d03e400189e",
+        "deleted": false,
+        "createdAt": 1730796185245
+    },
+    {
+        "name": "Ring",
+        "enable": true,
+        "isCreatedBySystem": true,
+        "editable": false,
+        "sources": [],
+        "conditions": [
+            {
+                "condition": {
+                    "type": "is",
+                    "source": "ring"
+                }
+            }
+        ],
+        "schedules": [],
+        "actions": [
+            {
+                "type": "SEND_NOTIFICATION",
+                "metadata": {
+                    "receivers": [
+                        {
+                            "user": "**USERID3**",
+                            "channels": [],
+                            "schedules": []
+                        },
+                        {
+                            "user": "**USERID2**",
+                            "channels": [
+                                "push"
+                            ],
+                            "schedules": []
+                        },
+                        {
+                            "user": "**USERID1**",
+                            "channels": [
+                                "push"
+                            ],
+                            "schedules": [
+                                {
+                                    "schedule": {
+                                        "type": "is",
+                                        "unit": "location",
+                                        "values": [
+                                            "allAway"
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                },
+                "order": -1
+            }
+        ],
+        "userId": "**USERID1**",
+        "status": {
+            "lastExecutedAt": 1732777400586,
+            "lastExecutedState": "ok",
+            "total": 2
+        },
+        "cooldown": {
+            "enable": false,
+            "timeout": 600000
+        },
+        "id": "6729da9900fb4d03e4001882",
+        "deleted": false,
+        "createdAt": 1730796185242
+    },
+    {
+        "name": "Car Horn",
+        "enable": true,
+        "isCreatedBySystem": true,
+        "editable": false,
+        "sources": [],
+        "conditions": [
+            {
+                "condition": {
+                    "type": "is",
+                    "source": "audio_alarm_car_horn"
+                }
+            }
+        ],
+        "schedules": [],
+        "actions": [
+            {
+                "type": "SEND_NOTIFICATION",
+                "metadata": {
+                    "receivers": [
+                        {
+                            "user": "**USERID1**",
+                            "channels": [],
+                            "schedules": [
+                                {
+                                    "schedule": {
+                                        "type": "is",
+                                        "unit": "location",
+                                        "values": [
+                                            "allAway"
+                                        ]
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            "user": "**USERID2**",
+                            "channels": [],
+                            "schedules": []
+                        },
+                        {
+                            "user": "**USERID3**",
+                            "channels": [],
+                            "schedules": []
+                        }
+                    ]
+                },
+                "order": -1
+            }
+        ],
+        "userId": "**USERID1**",
+        "status": {
+            "lastExecutedAt": null,
+            "total": 0
+        },
+        "cooldown": {
+            "enable": false,
+            "timeout": 600000
+        },
+        "id": "6729da99019f4d03e400188f",
+        "deleted": false,
+        "createdAt": 1730796185243
+    },
+    {
+        "name": "Device Discovery",
+        "enable": true,
+        "isCreatedBySystem": true,
+        "editable": false,
+        "sources": [],
+        "conditions": [
+            {
+                "condition": {
+                    "type": "is",
+                    "source": "device_discovery"
+                }
+            }
+        ],
+        "schedules": [],
+        "actions": [
+            {
+                "type": "SEND_NOTIFICATION",
+                "metadata": {
+                    "receivers": [
+                        {
+                            "user": "**USERID2**",
+                            "channels": [],
+                            "schedules": []
+                        },
+                        {
+                            "user": "**USERID3**",
+                            "channels": [],
+                            "schedules": []
+                        },
+                        {
+                            "user": "**USERID1**",
+                            "channels": [
+                                "push"
+                            ],
+                            "schedules": []
+                        }
+                    ]
+                },
+                "order": -1
+            }
+        ],
+        "userId": "**USERID1**",
+        "status": {
+            "lastExecutedAt": null,
+            "total": 0
+        },
+        "cooldown": {
+            "enable": false,
+            "timeout": 600000
+        },
+        "id": "6729da99023b4d03e400189c",
+        "deleted": false,
+        "createdAt": 1730796185245
+    },
+    {
+        "name": "Admin Recording Clips Manipulations",
+        "enable": true,
+        "isCreatedBySystem": true,
+        "editable": false,
+        "sources": [],
+        "conditions": [
+            {
+                "condition": {
+                    "type": "is",
+                    "source": "admin_recording_clips_manipulations"
+                }
+            }
+        ],
+        "schedules": [],
+        "actions": [
+            {
+                "type": "SEND_NOTIFICATION",
+                "metadata": {
+                    "receivers": [
+                        {
+                            "user": "**USERID1**",
+                            "channels": [],
+                            "schedules": []
+                        },
+                        {
+                            "user": "**USERID2**",
+                            "channels": [],
+                            "schedules": []
+                        },
+                        {
+                            "user": "**USERID3**",
+                            "channels": [],
+                            "schedules": []
+                        }
+                    ]
+                },
+                "order": -1
+            }
+        ],
+        "userId": "**USERID1**",
+        "status": {
+            "lastExecutedAt": null,
+            "total": 0
+        },
+        "cooldown": {
+            "enable": false,
+            "timeout": 600000
+        },
+        "id": "6729da9902694d03e40018a0",
+        "deleted": false,
+        "createdAt": 1730796185245
+    },
+    {
+        "name": "Person at Front Door",
+        "enable": true,
+        "isCreatedBySystem": false,
+        "editable": true,
+        "sources": [
+            {
+                "device": "F4E2C6730625",
+                "type": "include"
+            }
+        ],
+        "conditions": [
+            {
+                "condition": {
+                    "type": "is",
+                    "source": "person"
+                }
+            }
+        ],
+        "schedules": [],
+        "actions": [
+            {
+                "type": "SEND_NOTIFICATION",
+                "metadata": {
+                    "receivers": [
+                        {
+                            "user": "**USERID2**",
+                            "channels": [
+                                "push"
+                            ],
+                            "schedules": []
+                        },
+                        {
+                            "user": "**USERID1**",
+                            "channels": [
+                                "push"
+                            ],
+                            "schedules": [
+                                {
+                                    "schedule": {
+                                        "type": "is",
+                                        "unit": "location",
+                                        "values": [
+                                            "allAway"
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                },
+                "order": -1
+            }
+        ],
+        "userId": "**USERID1**",
+        "status": {
+            "lastExecutedAt": 1732777401247,
+            "lastExecutedState": "ok",
+            "total": 5
+        },
+        "cooldown": {
+            "enable": true,
+            "timeout": 900000
+        },
+        "id": "6746a0a203df5603e4001e3b",
+        "deleted": false,
+        "createdAt": 1732681890987
+    }
+]
