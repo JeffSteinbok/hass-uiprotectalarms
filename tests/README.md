@@ -1,4 +1,4 @@
-# PyDreo Unit Tests
+# PyUIProtectAlarms Unit Tests
 
 *This aims to briefly describe how these unit-tests are setup. Note that this is my first attempt at Python UnitTesting, so there is likely a much better way to do some of this. If you have suggestions, let me know.*
 

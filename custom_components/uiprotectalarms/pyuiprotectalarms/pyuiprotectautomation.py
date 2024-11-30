@@ -1,4 +1,4 @@
-"""Dreo API for controling fans."""
+"""Uiprotectalarms API for controling fans."""
 
 import logging
 from typing import TYPE_CHECKING, Dict
@@ -13,13 +13,13 @@ from .pyuiprotectbaseobject import PyUIProtectBaseObject
 _LOGGER = logging.getLogger(LOGGER_NAME)
 
 if TYPE_CHECKING:
-    from pyuiprotectalarms import PyUIProtectAlarms
+    from PyUIProtectAlarms import PyUIProtectAlarms
 
 
 class PyUIProtectAutomation(PyUIProtectBaseObject):
 
-    def __init__(self, details: Dict[str, list], pyUIProtectAlarms: "PyUIProtectAlarms"):
-        super().__init__(details, pyUIProtectAlarms)
+    def __init__(self, details: Dict[str, list], PyUIProtectAlarms: "PyUIProtectAlarms"):
+        super().__init__(details, PyUIProtectAlarms)
 
         self._name = None
         self._enabled = None

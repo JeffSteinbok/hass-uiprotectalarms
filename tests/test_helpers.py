@@ -1,4 +1,4 @@
-"""Test helpers for PyDreo."""
+"""Test helpers for PyUIProtectAlarms."""
 from  .imports import Helpers
 
 class TestHelpers:

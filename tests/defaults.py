@@ -1,4 +1,4 @@
-"""PyDreo Test Defaults"""
+"""PyUIProtectAlarms Test Defaults"""
 from requests.structures import CaseInsensitiveDict
 
 from .imports import * # pylint: disable=W0401,W0614

@@ -1,4 +1,4 @@
-"""Helper functions for PyDreo library."""
+"""Helper functions for PyUIProtectAlarms library."""
 
 import logging
 import time

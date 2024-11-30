@@ -1,4 +1,4 @@
-"""Base class for all tests. Contains a mock for call_dreo_api() function and instantiated Dreo object."""
+"""Base class for all tests. Contains a mock for call_uiprotectalarms_api() function and instantiated Uiprotectalarms object."""
 # pylint: disable=W0201
 import logging
 import os
@@ -14,30 +14,30 @@ logger = logging.getLogger(__name__)
 API_REPONSE_BASE_PATH = 'tests/api_responses/'
 
 PATCH_BASE_PATH = 'custom_components.uiprotectalarms.pyuiprotectalarms'
-PATCH_SEND_COMMAND = f'{PATCH_BASE_PATH}.PyUIProtectAlarms.send_command'
-PATCH_CALL_UIPROTECT_API = f'{PATCH_BASE_PATH}.PyUIProtectAlarms.call_uiprotect_api'
+PATCH_SEND_COMMAND = f'{PATCH_BASE_PATH}.pyuiprotectalarms.send_command'
+PATCH_CALL_UIPROTECT_API = f'{PATCH_BASE_PATH}.pyuiprotectalarms.call_uiprotect_api'
 
 Defaults = defaults.Defaults
 
 class TestBase:
     """Base class for all tests.
 
-    Contains instantiated PyDreo object and mocked
+    Contains instantiated PyUIProtectAlarms object and mocked
     API call for call_api() function."""
 
     @pytest.fixture(autouse=True, scope='function')
     def setup(self, caplog):
-        """Fixture to instantiate Dreo object, start logging and start Mock.
+        """Fixture to instantiate Uiprotectalarms object, start logging and start Mock.
 
         Attributes
         ----------
         self.mock_api : Mock
-        self.pydreo_manager : PyDreo
+        self.pyuiprotectalarms_manager : PyUIProtectAlarms
         self.caplog : LogCaptureFixture
 
         Yields
         ------
-        Class instance with mocked call_api() function and Dreo object
+        Class instance with mocked call_api() function and Uiprotectalarms object
         """
         self._api_response_file_name = None
         self.mock_api_call = patch(PATCH_CALL_UIPROTECT_API)
@@ -74,7 +74,7 @@ class TestBase:
     def call_uiprotect_api(self,
         api: str,
         json_object: Optional[dict] = None):
-        """Call Dreo REST API"""
+        """Call Uiprotectalarms REST API"""
         print(f'API call: {api} {json_object}')
         logger.debug('API call: %s %s', api, json_object)
 

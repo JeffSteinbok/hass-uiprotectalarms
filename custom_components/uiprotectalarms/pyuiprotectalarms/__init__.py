@@ -63,32 +63,22 @@ class PyUIProtectAlarms:
     def __init__(
         self,
         host: str,
-        port: int,
         username: str,
         password: str,
-        verify_ssl: bool = True,
-        session: aiohttp.ClientSession | None = None,
-        store_sessions: bool = True
     ) -> None:
         self._auth_lock = threading.Lock()
         self._host = host
-        self._port = port
+        self._port = 443
 
         self._username = username
         self._password = password
-        self._verify_ssl = verify_ssl
         
         self._automations : dict[PyUIProtectAutomation] = {}
-
-        self.store_sessions = store_sessions
-
-        if session is not None:
-            self._session = session
 
         self._update_url()
 
     @property
-    def automations(self) -> list[PyUIProtectAutomation]:
+    def automations(self) -> dict[PyUIProtectAutomation]:
         return self._automations
 
 
@@ -175,7 +165,7 @@ class PyUIProtectAlarms:
         )
 
 
-    def authenticate(self) -> None:
+    def authenticate(self) -> bool:
         """Authenticate and get a token."""
         if self._auth_lock.locked():
             # If an auth is already in progress
@@ -196,8 +186,10 @@ class PyUIProtectAlarms:
                 _LOGGER.debug("Authenticated successfully!")
             else:
                 self._raise_for_status(response, True)
+
+        return self._is_authenticated
             
-    def load_automations(self) -> None:
+    def load_automations(self) -> bool:
         """Load automations from the Unifi Protect API."""
 
         
@@ -210,6 +202,8 @@ class PyUIProtectAlarms:
         for automation in response:
             automation : PyUIProtectAutomation = PyUIProtectAutomation(automation, self)
             self._automations[automation.id] = automation
+
+        return True
 
 
     def _update_last_token_cookie(self, response: requests.Response) -> None:

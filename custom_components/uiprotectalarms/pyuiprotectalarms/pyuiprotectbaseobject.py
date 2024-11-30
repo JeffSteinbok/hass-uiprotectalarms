@@ -1,4 +1,4 @@
-"""Base class for all Dreo devices."""
+"""Base class for all Uiprotectalarms devices."""
 import threading
 import logging
 from typing import Dict
@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING
 from .constants import LOGGER_NAME
 
 if TYPE_CHECKING:
-    from pyuiprotectalarms import PyUIProtectAlarms
+    from PyUIProtectAlarms import PyUIProtectAlarms
 
 _LOGGER = logging.getLogger(LOGGER_NAME)
 

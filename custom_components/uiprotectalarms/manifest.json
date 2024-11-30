@@ -1,0 +1,13 @@
+{
+  "domain": "uiprotectalarms",
+  "name": "Uiprotectalarms",
+  "codeowners": ["@jeffsteinbok"],
+  "config_flow": true,
+  "dependencies": [],
+  "documentation": "https://github.com/jeffsteinbok/hass-uiprotectalarms/blob/master/README.md",
+  "iot_class": "cloud_push",
+  "issue_tracker": "https://github.com/jeffsteinbok/hass-uiprotectalarms/issues",  
+  "loggers": ["uiprotectalarms", "PyUIProtectAlarms"],
+  "requirements": ["websockets"],
+  "version": "1.0.0"
+}
