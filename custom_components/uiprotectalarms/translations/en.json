@@ -5,6 +5,7 @@
           "title": "Enter Unifi Protect Host IP, Username and Password",
           "data": {
             "host": "Host IP (IPV4)",
+            "port": "port (default 443)",
             "username": "Username",
             "password": "Password"
           }
@@ -20,9 +21,9 @@
     "options": {
       "step": {
         "init": {
-          "title": "Uiprotectalarms Options",
+          "title": "Unifi Protect Alarms Options",
           "data": {
-            "auto_reconnect": "Automatically reconnect if the websocket drops."
+            "rule_prefix": "Only show alarms with this name prefix:"
           }
         }
       }

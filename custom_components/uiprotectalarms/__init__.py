@@ -9,6 +9,7 @@ from .const import (
     DOMAIN,
     PYUIPROTECTALARMS_MANAGER,
     UIPROTECTALARMS_PLATFORMS,
+    CONF_RULE_PREFIX
 )
 
 _LOGGER = logging.getLogger(LOGGER)
@@ -22,13 +23,12 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> b
     host = config_entry.data.get(CONF_HOST)
     username = config_entry.data.get(CONF_USERNAME)
     password = config_entry.data.get(CONF_PASSWORD)
-    
-
-    region = "us"
+    rule_prefix = config_entry.options.get(CONF_RULE_PREFIX)
 
     from .pyuiprotectalarms import PyUIProtectAlarms  # pylint: disable=C0415
 
     pyuiprotectalarms_manager = PyUIProtectAlarms(host, username, password)
+    pyuiprotectalarms_manager.automation_rule_prefix = rule_prefix
 
     authenticate = await hass.async_add_executor_job(pyuiprotectalarms_manager.authenticate)
 

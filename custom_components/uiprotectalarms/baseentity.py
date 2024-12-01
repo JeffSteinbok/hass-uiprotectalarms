@@ -25,8 +25,8 @@ class UIProtectAlarmsBaseEntityHA(Entity):
                 # Serial numbers are unique identifiers within a specific domain
                 (DOMAIN, self.pyuiprotect_base_obj._uiProtectAlarms._host)
             },
-            name=self.pyuiprotect_base_obj._uiProtectAlarms._host,
-            manufacturer="Unifi Project - Alarms",
+            name="NVR - " + self.pyuiprotect_base_obj._uiProtectAlarms._host,
+            manufacturer="Ubiquiti",
             model="NVR"
         )
 
@@ -42,9 +42,9 @@ class UIProtectAlarmsBaseEntityHA(Entity):
         # Create a callback to update state in HA and add it a callback in
         # the PyDreo device. This will cause all handle_server_update responses
         # to update the state in HA.
-        @callback
-        def update_state():
-            # Tell HA we're ready to update
-            self.schedule_update_ha_state(True)
+        #@callback
+        #def update_state():
+        #    # Tell HA we're ready to update
+        #    self.schedule_update_ha_state(True)
 
-        self.pyuiprotect_base_obj.add_attr_callback(update_state)
+        #self.pyuiprotect_base_obj.add_attr_callback(update_state)

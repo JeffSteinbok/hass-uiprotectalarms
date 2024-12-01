@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING
 from .constants import LOGGER_NAME
 
 if TYPE_CHECKING:
-    from PyUIProtectAlarms import PyUIProtectAlarms
+    from pyuiprotectalarms import PyUIProtectAlarms
 
 _LOGGER = logging.getLogger(LOGGER_NAME)
 
@@ -17,11 +17,14 @@ class UnknownModelError(Exception):
     """Exception thrown when we don't recognize a model of a device."""
 
 class PyUIProtectBaseObject(object):
+    """Base class for all Unifi Protect devices."""
+    
     def __init__(
         self,
         details: Dict[str, list],
         uiProtectAlarms: "PyUIProtectAlarms",
     ):
+        """Initialize the Uiprotectalarms device."""
 
         self._uiProtectAlarms = uiProtectAlarms
         self._is_on = False

@@ -1,13 +1,12 @@
 {
   "domain": "uiprotectalarms",
-  "name": "Uiprotectalarms",
+  "name": "Unifi Protect Alarm Integration",
   "codeowners": ["@jeffsteinbok"],
   "config_flow": true,
   "dependencies": [],
-  "documentation": "https://github.com/jeffsteinbok/hass-uiprotectalarms/blob/master/README.md",
+  "documentation": "https://github.com/jeffsteinbok/hass-uiprotectalarms/blob/main/README.md",
   "iot_class": "cloud_push",
   "issue_tracker": "https://github.com/jeffsteinbok/hass-uiprotectalarms/issues",  
   "loggers": ["uiprotectalarms", "PyUIProtectAlarms"],
-  "requirements": ["websockets"],
-  "version": "1.0.0"
+  "version": "0.0.1"
 }

@@ -32,7 +32,7 @@ SWITCHES: list[UIProtectAlarmsSwitchHAEntityDescription] = [
         key="Enabled",
         translation_key="enabled",
         attr_name="enabled",
-        icon="mdi:rotate-360",
+        icon="mdi:alarm-light",
     )
 ]
 
@@ -102,6 +102,7 @@ class UIProtectAlarmsSwitchHA(UIProtectAlarmsBaseEntityHA, SwitchEntity):
             self.entity_description.key,
             getattr(self.pyuiprotectalarms_automation, self.entity_description.attr_name),
         )
+        
         return getattr(self.pyuiprotectalarms_automation, self.entity_description.attr_name)
 
     def turn_on(

@@ -13,18 +13,19 @@ from .pyuiprotectbaseobject import PyUIProtectBaseObject
 _LOGGER = logging.getLogger(LOGGER_NAME)
 
 if TYPE_CHECKING:
-    from PyUIProtectAlarms import PyUIProtectAlarms
+    from pyuiprotectalarms import PyUIProtectAlarms
 
 
 class PyUIProtectAutomation(PyUIProtectBaseObject):
+    """Class to represent a Unifi Protect Alarm Automation."""
 
     def __init__(self, details: Dict[str, list], PyUIProtectAlarms: "PyUIProtectAlarms"):
         super().__init__(details, PyUIProtectAlarms)
 
-        self._name = None
-        self._enabled = None
-        self._id = None
-        self._raw_details = None
+        self._name : str = None
+        self._enabled : bool = None
+        self._id : str = None
+        self._raw_details : dict = None
 
         self.update_state(details)
 
@@ -33,11 +34,11 @@ class PyUIProtectAutomation(PyUIProtectBaseObject):
         return f"<{self.__class__.__name__}:{self._id}:{self._name}>"
     
     @property
-    def name(self):
+    def name(self) -> str:
         return self._name
 
     @property
-    def enabled(self):
+    def enabled(self) -> bool:
         return self._enabled
     
     @enabled.setter
@@ -49,10 +50,12 @@ class PyUIProtectAutomation(PyUIProtectBaseObject):
 
     @property
     def id(self):
+        """Return the id of the device."""
         return self._id
 
     @property
     def raw_details(self):
+        """Return the raw details of the device."""
         return self._raw_details
 
     def refresh(self):

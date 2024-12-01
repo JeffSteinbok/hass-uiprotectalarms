@@ -7,12 +7,12 @@ import voluptuous as vol
 from .haimports import * # pylint: disable=W0401,W0614
 from .const import (
     DOMAIN,
-    CONF_AUTO_RECONNECT
+    CONF_AUTO_RECONNECT,
+    CONF_RULE_PREFIX
 )
 from .pyuiprotectalarms import PyUIProtectAlarms
 
 _LOGGER = logging.getLogger("uiprotectalarms")
-
 
 class UiprotectalarmsFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
     """Uiprotectalarms Custom config flow."""
@@ -89,14 +89,14 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
             _LOGGER.debug("UserInput is not none")
             return self.async_create_entry(title="", data=user_input)
 
-        auto_reconnect = self.config_entry.options.get(CONF_AUTO_RECONNECT)
-        if auto_reconnect is None:
-            _LOGGER.debug("auto_reconnect not set, setting it to True")
-            auto_reconnect = True
+        rule_prefix = self.config_entry.options.get(CONF_RULE_PREFIX)
+        if rule_prefix is None:
+            _LOGGER.debug("rule_prefix not set, setting it to True")
+            rule_prefix = True
 
         options_schema = vol.Schema(
             {
-                vol.Required(CONF_AUTO_RECONNECT, default=auto_reconnect): bool
+                vol.Required(CONF_RULE_PREFIX, default=rule_prefix): str
             }
         )
         return self.async_show_form(

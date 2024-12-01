@@ -2,7 +2,7 @@
     "config": {
       "step": {
         "user": {
-          "title": "Enter Uiprotectalarms Username and Password",
+          "title": "Enter Unifi Protect Username and Password",
           "data": {
             "username": "[%key:common::config_flow::data::email%]",
             "password": "[%key:common::config_flow::data::password%]"
@@ -19,9 +19,9 @@
     "options": {
       "step": {
         "init": {
-          "title": "Uiprotectalarms Options",
+          "title": "Unifi Protect Alarms Options",
           "data": {
-            "auto_reconnect": "Automatically reconnect if the websocket drops."
+            "rule_prefix": "Only import alarms with this name starting with this"
           }
         }
       }

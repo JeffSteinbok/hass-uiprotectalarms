@@ -1,7 +1,4 @@
 """UniFi Protect Server Wrapper."""
-
-from __future__ import annotations
-
 from http import HTTPStatus
 from http.cookies import SimpleCookie
 from pathlib import Path
@@ -48,6 +45,7 @@ def get_user_hash(host: str, username: str) -> str:
     return session.hexdigest()
 
 class PyUIProtectAlarms:
+    """Class to communicate with the Unifi Protect server."""
     _host: str
     _port: int
     _username: str
@@ -73,14 +71,25 @@ class PyUIProtectAlarms:
         self._username = username
         self._password = password
         
+        self._automation_rule_prefix = None
         self._automations : dict[PyUIProtectAutomation] = {}
 
         self._update_url()
 
     @property
-    def automations(self) -> dict[PyUIProtectAutomation]:
-        return self._automations
+    def automation_rule_prefix(self):
+        """For filtering automations by name."""
+        return self._automation_rule_prefix
+    
+    @automation_rule_prefix.setter
+    def automation_rule_prefix(self, value: str):
+        """For filtering automations by name."""
+        self._automation_rule_prefix = value
 
+    @property
+    def automations(self) -> dict[PyUIProtectAutomation]:
+        """Return the automations."""
+        return self._automations
 
     def _update_cookiename(self, cookie: SimpleCookie) -> None:
         if "UOS_TOKEN" in cookie:
@@ -201,7 +210,8 @@ class PyUIProtectAlarms:
 
         for automation in response:
             automation : PyUIProtectAutomation = PyUIProtectAutomation(automation, self)
-            self._automations[automation.id] = automation
+            if (self.automation_rule_prefix is None or automation.name.startswith(self.automation_rule_prefix)):
+                self._automations[automation.id] = automation
 
         return True
 
