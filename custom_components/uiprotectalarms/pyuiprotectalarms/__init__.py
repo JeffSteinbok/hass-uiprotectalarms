@@ -35,7 +35,7 @@ PROTECT_APT_URLS = [
     "https://apt.artifacts.ui.com/dists/bullseye/release/binary-arm64/Packages",
 ]
 
-_LOGGER = logging.getLogger(__name__)
+_LOGGER = logging.getLogger(LOGGER_NAME)
 _COOKIE_RE = re.compile(r"^set-cookie: ", re.IGNORECASE)
 
 def get_user_hash(host: str, username: str) -> str:
@@ -72,7 +72,7 @@ class PyUIProtectAlarms:
         self._password = password
         
         self._automation_rule_prefix = None
-        self._automations : dict[PyUIProtectAutomation] = {}
+        self._automations : dict[str, PyUIProtectAutomation] = {}
 
         self._update_url()
 
@@ -200,18 +200,27 @@ class PyUIProtectAlarms:
             
     def load_automations(self) -> bool:
         """Load automations from the Unifi Protect API."""
+        _LOGGER.debug("PyUIProtectAlarms: load_automations")
 
-        
         response, status_code  = self.call_uiprotect_api(UIProtectApi.GET_AUTOMATIONS)
         if status_code != 200:  
             self._raise_for_status(response, True)
-        
-        self._automations.clear()
 
-        for automation in response:
-            automation : PyUIProtectAutomation = PyUIProtectAutomation(automation, self)
-            if (self.automation_rule_prefix is None or automation.name.startswith(self.automation_rule_prefix)):
-                self._automations[automation.id] = automation
+
+        for automation_details in response:
+            automation_id : str = automation_details.get("id")
+            automation_obj : PyUIProtectAutomation = self._automations.get(automation_id) or None
+            _LOGGER.debug("PyUIProtectAlarms: load_automations: automation_id=%s, automation_obj=%s", automation_id, automation_obj)
+            if (automation_obj is None):
+                automation_obj = PyUIProtectAutomation(automation_details, self)
+
+                if (self.automation_rule_prefix is None or automation_obj.name.startswith(self.automation_rule_prefix)):
+                    self._automations[automation_obj.id] = automation_obj
+
+            else:
+                automation_obj.handle_server_update_base(automation_details)
+
+
 
         return True
 

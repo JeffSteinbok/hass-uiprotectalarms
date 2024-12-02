@@ -10,10 +10,10 @@ from .const import (
 )
 
 class UIProtectAlarmsBaseEntityHA(Entity):
-    """Base class for Dreo Entity Representations."""
+    """Base class for all UIProtectAlarms entities."""
 
     def __init__(self, pyuiprotect_base_obj: PyUIProtectBaseObject) -> None:
-        """Initialize the Dreo device."""
+        """Initialize the entity."""
         self.pyuiprotect_base_obj = pyuiprotect_base_obj
 
     @property
@@ -35,16 +35,16 @@ class UIProtectAlarmsBaseEntityHA(Entity):
         """Return True if device is available."""
         # return self.device.connection_status == "online"
         return True
-
+    
     async def async_added_to_hass(self):
         """Register callbacks."""
 
         # Create a callback to update state in HA and add it a callback in
         # the PyDreo device. This will cause all handle_server_update responses
         # to update the state in HA.
-        #@callback
-        #def update_state():
-        #    # Tell HA we're ready to update
-        #    self.schedule_update_ha_state(True)
+        @callback
+        def update_state():
+            # Tell HA we're ready to update
+            self.schedule_update_ha_state(True)
 
-        #self.pyuiprotect_base_obj.add_attr_callback(update_state)
+        self.pyuiprotect_base_obj.add_attr_callback(update_state)        

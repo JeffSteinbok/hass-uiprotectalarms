@@ -39,5 +39,31 @@ class PyUIProtectBaseObject(object):
         # Representation string of object.
         return f"<{self.__class__.__name__}>"
 
+    def handle_server_update_base(self, details: Dict):
+        """Initial method called when we do a refrehs"""
+
+        # This method exists so that we can run the polymorphic function to process updates, and then
+        # run a _do_callbacks() command safely afterwards.
+        self.handle_server_update(details)
+        self._do_callbacks()
+
+    def handle_server_update(self, details: dict):
+        """Method to process an update"""
+        self.update_state(details)
+
     def update_state(self, state: dict):
         """Process the state dictionary from the REST API."""
+
+    def add_attr_callback(self, cb):
+        """Add a callback to be called by _do_callbacks."""
+        self._attr_cbs.append(cb)
+
+    def _do_callbacks(self):
+        """Run all registered callback"""
+        cbs = []
+        with self._lock:
+            for cb in self._attr_cbs:
+                cbs.append(cb)
+        for cb in cbs:
+            _LOGGER.debug("Running callback %s", cb)
+            cb()

@@ -25,5 +25,11 @@
           }
         }
       }
+    },
+    "services": {
+      "refresh_alarms": {
+        "name": "Refresh Alarms",
+        "description": "Update the list and state of alarms"
+      }
     }
   }

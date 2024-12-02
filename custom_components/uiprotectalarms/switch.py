@@ -6,7 +6,7 @@
 # pylint: disable=W0613
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, Callable
 from dataclasses import dataclass
 import logging
 
@@ -26,13 +26,14 @@ class UIProtectAlarmsSwitchHAEntityDescription(SwitchEntityDescription):
 
     attr_name: str = None
     icon: str = None
+    alarm_name_fn: Callable[[str], str] = None
 
 SWITCHES: list[UIProtectAlarmsSwitchHAEntityDescription] = [
     UIProtectAlarmsSwitchHAEntityDescription(
         key="Enabled",
-        translation_key="enabled",
+        translation_key="alarm_enabled",
         attr_name="enabled",
-        icon="mdi:alarm-light",
+        alarm_name_fn=lambda alarm_name : alarm_name if not alarm_name.endswith(" (Disabled)") else alarm_name[:-11] 
     )
 ]
 
@@ -89,9 +90,13 @@ class UIProtectAlarmsSwitchHA(UIProtectAlarmsBaseEntityHA, SwitchEntity):
 
         # Note this is a "magic" HA property.  Don't rename
         self.entity_description = description
+        automation_name = pyuiprotectalarms_automation.name
+        if (description.alarm_name_fn is not None):
+            automation_name = description.alarm_name_fn(automation_name)
 
-        self._attr_name = pyuiprotectalarms_automation.name + " " + description.key
+        self._attr_name = automation_name + " " + description.key
         self._attr_unique_id = f"{pyuiprotectalarms_automation.id}-{description.key}"
+        self._attr_should_poll = False
 
     @property
     def is_on(self) -> bool:

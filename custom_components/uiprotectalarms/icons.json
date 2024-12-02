@@ -1,0 +1,17 @@
+{
+    "entity": {
+      "switch": {
+        "alarm_enabled": {
+            "state": {
+                "on": "mdi:alarm-light",
+                "off": "mdi:alarm-light-off"
+            }
+          }
+        }
+    },
+    "services": {
+      "refresh_alarms": {
+        "service": "mdi:update"
+        }
+    }
+}

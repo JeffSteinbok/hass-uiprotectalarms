@@ -43,10 +43,21 @@ class PyUIProtectAutomation(PyUIProtectBaseObject):
     
     @enabled.setter
     def enabled(self, value: bool):
+        """Enable or disable the automation."""
+
+        # If the automation is disabled, add (Disabled) to the name, and remove it if enabled.
+        if (value is True):
+            if (self._name.endswith(" (Disabled)")):
+                self._raw_details["name"] = self._name[:-11]
+        else:
+            if (not self._name.endswith(" (Disabled)")):
+                self._raw_details["name"] = self._name + " (Disabled)"
+
         self._raw_details["enable"] = value
+        
         response, status_code = self._uiProtectAlarms.call_uiprotect_api(UIProtectApi.UPDATE_AUTOMATION, self._id, self._raw_details)
         if (status_code == 200):
-            self.update_state(response)
+            self.handle_server_update_base(response)
 
     @property
     def id(self):
@@ -57,16 +68,6 @@ class PyUIProtectAutomation(PyUIProtectBaseObject):
     def raw_details(self):
         """Return the raw details of the device."""
         return self._raw_details
-
-    def refresh(self):
-        """Refresh the state of the device."""
-        _LOGGER.debug("PyUIProtectAutomation:refresh")
-        response, status_code = self._uiProtectAlarms.call_uiprotect_api(UIProtectApi.GET_AUTOMATIONS, self._id)
-        if status_code == 200:
-            self.update_state(response)
-        
-
-        self._raw_details = self._uiProtectAlarms.automations[self._id].raw_details
 
     def update_state(self, state: dict):
         _LOGGER.debug("PyUIProtectAutomation:update_state: %s", state.get("id"))

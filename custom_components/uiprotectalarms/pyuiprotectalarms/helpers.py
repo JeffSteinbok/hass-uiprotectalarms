@@ -22,8 +22,8 @@ NUMERIC = Optional[Union[int, float, str]]
 
 
 class Helpers:
+    """Helper functions for PyUIProtectAlarms library."""
     
-
     shouldredact = False
 
     @classmethod
@@ -138,42 +138,6 @@ class Helpers:
             else:
                 _LOGGER.debug("Unable to fetch %s%s", url, api)
         return response, status_code
-
-    @staticmethod
-    def code_check(reponse_dict: dict) -> bool:
-        """Test if code == 0 for successful API call."""
-        if reponse_dict is None:
-            _LOGGER.error("No response from API")
-            return False
-        if isinstance(reponse_dict, dict) and reponse_dict.get("code") == 0:
-            return True
-        return False
-
-    @staticmethod
-    def api_timestamp() -> str:
-        """Timestamp in correct format for API calls"""
-        return str(int(time.time() * 1000))
-
-    @staticmethod
-    def name_from_value(name_value_list : list[tuple], value) -> str:
-        """Return name from list of tuples."""
-        for name, val in name_value_list:
-            if val == value:
-                return name
-        return None
-
-    @staticmethod
-    def value_from_name(name_value_list : list[tuple], name) -> any:
-        """Return value from list of tuples."""
-        for n, val in name_value_list:
-            if n == name:
-                return val
-        return None
-
-    @staticmethod
-    def get_name_list(name_value_list : list[tuple]) -> list[str]:
-        """Return list of names from list of tuples."""
-        return [name for name, _ in name_value_list]
 
     @staticmethod
     def decode_token_cookie(token_cookie: str) -> dict[str, any] | None:

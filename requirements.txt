@@ -1,4 +1,3 @@
-websockets
 strenum
 requests
 voluptuous

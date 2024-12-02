@@ -9,7 +9,8 @@ from .const import (
     DOMAIN,
     PYUIPROTECTALARMS_MANAGER,
     UIPROTECTALARMS_PLATFORMS,
-    CONF_RULE_PREFIX
+    CONF_RULE_PREFIX,
+    SERVICE_REFRESH_ALARMS
 )
 
 _LOGGER = logging.getLogger(LOGGER)
@@ -42,8 +43,6 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> b
         _LOGGER.error("Unable to load automation list from the uiprotectalarms server")
         return False
 
-    _LOGGER.debug("Checking for supported installed device types")
-
     _LOGGER.info("%d UIProtect automations found", len(pyuiprotectalarms_manager.automations))
 
     platforms = set()
@@ -57,12 +56,15 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> b
 
     await hass.config_entries.async_forward_entry_setups(config_entry, platforms)
 
-    async def _update_listener(hass: HomeAssistant, config_entry: ConfigEntry):
-        """Handle options update."""
-        await hass.config_entries.async_reload(config_entry.entry_id)
-
-    ## Create update listener
-    config_entry.async_on_unload(config_entry.add_update_listener(_update_listener))
+    async def async_refresh_automations(service: ServiceCall) -> None:
+        """Refresh the automations."""
+        _LOGGER.debug("Refreshing automations")
+        
+        await hass.async_add_executor_job(pyuiprotectalarms_manager.load_automations)
+    
+    hass.services.async_register(
+        DOMAIN, SERVICE_REFRESH_ALARMS, async_refresh_automations
+    )
 
     return True
 
