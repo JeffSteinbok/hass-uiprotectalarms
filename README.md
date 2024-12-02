@@ -23,7 +23,7 @@ by this integration.
 ### HACS (Recommended)
 
 1. Add this repository to HACS *AS A CUSTOM REPOSITORY*.
-1. Search for *UnifiProtect Alarms Integration*, and choose install. 
+1. Search for *jeffsteinbok/hass-uiprotectalarms*, and choose type *Integration*. 
 1. Reboot Home Assistant and configure from the "Add Integration" flow.
 
 ### Manually
