@@ -206,7 +206,17 @@ class PyUIProtectNotification(PyUIProtectBaseObject):
         if status_code == 200:
             _LOGGER.info("Updated notification %s via automation %s for all users", 
                         self._name, self._automation_id)
-            automation.handle_server_update_base(response)
+            # Don't call handle_server_update_base here as it triggers callbacks
+            # that might be called from wrong thread. Just update local state.
+            if response:
+                automation.update_state(response)
+            # Update local notification state
+            self._push_enabled = "push" in self._raw_details.get("channels", [])
+            self._email_enabled = "email" in self._raw_details.get("channels", [])
+            
+            # Trigger callbacks manually but in a safe way
+            # The callbacks will use call_soon_threadsafe to update HA state
+            automation._do_callbacks()
         else:
             _LOGGER.error("Failed to update automation %s, status: %s", 
                          self._automation_id, status_code)

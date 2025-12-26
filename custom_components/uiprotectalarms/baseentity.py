@@ -1,13 +1,19 @@
 """BaseDevice utilities for Dreo Component."""
 
+import asyncio
+import logging
+
 from .pyuiprotectalarms import PyUIProtectAlarms
 from .pyuiprotectalarms.pyuiprotectbaseobject import PyUIProtectBaseObject
 
 from .haimports import * # pylint: disable=W0401,W0614
 
 from .const import (
-    DOMAIN
+    DOMAIN,
+    LOGGER
 )
+
+_LOGGER = logging.getLogger(LOGGER)
 
 class UIProtectAlarmsBaseEntityHA(Entity):
     """Base class for all UIProtectAlarms entities."""
@@ -39,13 +45,28 @@ class UIProtectAlarmsBaseEntityHA(Entity):
     async def async_added_to_hass(self):
         """Register callbacks."""
 
+        # Store hass reference for thread-safe updates
+        hass_ref = self.hass
+
         # Create a callback to update state in HA and add it a callback in
         # the PyDreo device. This will cause all handle_server_update responses
         # to update the state in HA.
         def update_state():
             # Schedule the state update in the event loop
             # This ensures we're not calling async_write_ha_state from a thread
-            if self.hass and self.hass.loop:
-                self.hass.loop.call_soon_threadsafe(self.async_write_ha_state)
+            if hass_ref and hass_ref.loop and hass_ref.loop.is_running():
+                # Use run_coroutine_threadsafe to safely run the async method
+                # from another thread
+                try:
+                    future = asyncio.run_coroutine_threadsafe(
+                        self.async_write_ha_state(),
+                        hass_ref.loop
+                    )
+                    # Don't wait for the result, just schedule it
+                except Exception as e:
+                    _LOGGER.warning("Failed to schedule state update: %s", e)
+            else:
+                # Fallback: try to schedule directly if loop is not available
+                _LOGGER.warning("Cannot schedule state update: hass or loop not available")
 
         self.pyuiprotect_base_obj.add_attr_callback(update_state)        
