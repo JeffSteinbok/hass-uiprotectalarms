@@ -157,34 +157,53 @@ class PyUIProtectNotification(PyUIProtectBaseObject):
         
         _LOGGER.debug("Updating channel %s to %s in automation %s", channel, enabled, self._automation_id)
         
-        # Update channels in all receivers for all users
+        # First, read current state from automation to preserve other channels
+        # This ensures we don't lose the state of the other channel
+        current_push_state = False
+        current_email_state = False
+        
         actions = automation.raw_details.get("actions", [])
         for action in actions:
             if action.get("type") == "SEND_NOTIFICATION":
                 metadata = action.get("metadata", {})
                 receivers = metadata.get("receivers", [])
                 
-                # Update channels for all receivers
+                # Read current state from first receiver (they should all be the same)
+                if receivers:
+                    current_channels = receivers[0].get("channels", [])
+                    if isinstance(current_channels, list):
+                        current_push_state = "push" in current_channels
+                        current_email_state = "email" in current_channels
+                        _LOGGER.debug("Current state from automation: push=%s, email=%s", 
+                                     current_push_state, current_email_state)
+                    break
+        
+        # Now update with the new value for the specific channel, preserving the other
+        if channel == "push":
+            new_push_state = enabled
+            new_email_state = current_email_state  # Preserve email state
+        else:  # channel == "email"
+            new_push_state = current_push_state  # Preserve push state
+            new_email_state = enabled
+        
+        _LOGGER.debug("New state after update: push=%s, email=%s", new_push_state, new_email_state)
+        
+        # Update channels in all receivers for all users
+        for action in actions:
+            if action.get("type") == "SEND_NOTIFICATION":
+                metadata = action.get("metadata", {})
+                receivers = metadata.get("receivers", [])
+                
+                # Update channels for all receivers with the correct state
                 for receiver in receivers:
-                    # Get current channels or initialize empty list
-                    channels = receiver.get("channels", [])
-                    if not isinstance(channels, list):
-                        channels = []
-                    
-                    # Update the specific channel while preserving others
-                    if enabled:
-                        # Add channel if not present
-                        if channel not in channels:
-                            channels.append(channel)
-                            _LOGGER.debug("Added channel %s to receiver %s", channel, receiver.get("user"))
-                    else:
-                        # Remove channel if present
-                        if channel in channels:
-                            channels.remove(channel)
-                            _LOGGER.debug("Removed channel %s from receiver %s", channel, receiver.get("user"))
+                    channels = []
+                    if new_push_state:
+                        channels.append("push")
+                    if new_email_state:
+                        channels.append("email")
                     
                     receiver["channels"] = channels
-                    _LOGGER.debug("Receiver %s now has channels: %s", receiver.get("user"), channels)
+                    _LOGGER.debug("Updated receiver %s with channels: %s", receiver.get("user"), channels)
         
         # Log the automation details before update
         _LOGGER.debug("Updating automation %s with details: %s", 
