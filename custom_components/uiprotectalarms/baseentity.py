@@ -42,9 +42,10 @@ class UIProtectAlarmsBaseEntityHA(Entity):
         # Create a callback to update state in HA and add it a callback in
         # the PyDreo device. This will cause all handle_server_update responses
         # to update the state in HA.
-        @callback
         def update_state():
-            # Tell HA we're ready to update
-            self.async_write_ha_state()
+            # Schedule the state update in the event loop
+            # This ensures we're not calling async_write_ha_state from a thread
+            if self.hass and self.hass.loop:
+                self.hass.loop.call_soon_threadsafe(self.async_write_ha_state)
 
         self.pyuiprotect_base_obj.add_attr_callback(update_state)        

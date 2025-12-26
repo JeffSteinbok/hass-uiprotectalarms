@@ -101,7 +101,7 @@ class UIProtectAlarmsNotificationSwitchHA(UIProtectAlarmsBaseEntityHA, SwitchEnt
         
         return getattr(self.pyuiprotectalarms_notification, self.entity_description.attr_name)
 
-    def turn_on(
+    async def async_turn_on(
         self,
         percentage: int | None = None,
         preset_mode: str | None = None,
@@ -109,12 +109,24 @@ class UIProtectAlarmsNotificationSwitchHA(UIProtectAlarmsBaseEntityHA, SwitchEnt
     ) -> None:
         """Turn the notification channel on."""
         _LOGGER.debug("Turning on %s %s", self.pyuiprotectalarms_notification.name, self.entity_description.key)
-        setattr(self.pyuiprotectalarms_notification, self.entity_description.attr_name, True)
+        # Run the synchronous setter in executor to avoid blocking
+        await self.hass.async_add_executor_job(
+            setattr, 
+            self.pyuiprotectalarms_notification, 
+            self.entity_description.attr_name, 
+            True
+        )
 
-    def turn_off(self, **kwargs: Any) -> None:
+    async def async_turn_off(self, **kwargs: Any) -> None:
         """Turn the notification channel off."""
         _LOGGER.debug(
             "Turning off %s %s", self.pyuiprotectalarms_notification.name, self.entity_description.key
         )
-        setattr(self.pyuiprotectalarms_notification, self.entity_description.attr_name, False)
+        # Run the synchronous setter in executor to avoid blocking
+        await self.hass.async_add_executor_job(
+            setattr,
+            self.pyuiprotectalarms_notification,
+            self.entity_description.attr_name,
+            False
+        )
 
