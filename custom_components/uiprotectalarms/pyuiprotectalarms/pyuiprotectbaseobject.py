@@ -1,7 +1,6 @@
 """Base class for all Uiprotectalarms devices."""
 import threading
 import logging
-from typing import Dict
 from typing import TYPE_CHECKING
 from .constants import LOGGER_NAME
 
@@ -21,7 +20,7 @@ class PyUIProtectBaseObject(object):
     
     def __init__(
         self,
-        details: Dict[str, list],
+        details: dict[str, list],
         uiProtectAlarms: "PyUIProtectAlarms",
     ):
         """Initialize the Uiprotectalarms device."""
@@ -29,7 +28,7 @@ class PyUIProtectBaseObject(object):
         self._uiProtectAlarms = uiProtectAlarms
         self._is_on = False
 
-        self._feature_key_names: Dict[str, str] = {}
+        self._feature_key_names: dict[str, str] = {}
 
         self.raw_state = None
         self._attr_cbs = []
@@ -39,7 +38,7 @@ class PyUIProtectBaseObject(object):
         # Representation string of object.
         return f"<{self.__class__.__name__}>"
 
-    def handle_server_update_base(self, details: Dict):
+    def handle_server_update_base(self, details: dict):
         """Initial method called when we do a refrehs"""
 
         # This method exists so that we can run the polymorphic function to process updates, and then

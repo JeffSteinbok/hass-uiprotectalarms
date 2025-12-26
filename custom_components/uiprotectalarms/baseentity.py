@@ -45,6 +45,6 @@ class UIProtectAlarmsBaseEntityHA(Entity):
         @callback
         def update_state():
             # Tell HA we're ready to update
-            self.schedule_update_ha_state(True)
+            self.async_write_ha_state()
 
         self.pyuiprotect_base_obj.add_attr_callback(update_state)        

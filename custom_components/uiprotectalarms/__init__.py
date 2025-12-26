@@ -70,11 +70,16 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> b
 
 async def async_unload_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> bool:
     """Unload a config entry."""
-    pyuiprotectalarms_manager = hass.data[DOMAIN][PYUIPROTECTALARMS_MANAGER]
-    if unload_ok := await hass.config_entries.async_unload_platforms(
+    if DOMAIN not in hass.data:
+        return True
+    
+    unload_ok = await hass.config_entries.async_unload_platforms(
         config_entry,
         hass.data[DOMAIN][UIPROTECTALARMS_PLATFORMS],
-    ):
+    )
+    
+    if unload_ok:
+        hass.services.async_remove(DOMAIN, SERVICE_REFRESH_ALARMS)
         hass.data.pop(DOMAIN)
 
     return unload_ok

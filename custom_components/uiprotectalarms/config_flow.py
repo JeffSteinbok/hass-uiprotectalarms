@@ -1,7 +1,7 @@
 """Config (and Options) flow for Uiprotectalarms integration."""
 import logging
-from typing import Any, Dict
-from collections import OrderedDict
+from typing import Any
+
 import voluptuous as vol
 
 from .haimports import * # pylint: disable=W0401,W0614
@@ -13,6 +13,14 @@ from .const import (
 from .pyuiprotectalarms import PyUIProtectAlarms
 
 _LOGGER = logging.getLogger("uiprotectalarms")
+
+DATA_SCHEMA = vol.Schema(
+    {
+        vol.Required(CONF_USERNAME): str,
+        vol.Required(CONF_PASSWORD): str,
+        vol.Required(CONF_HOST): str,
+    }
+)
 
 class UiprotectalarmsFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
     """Uiprotectalarms Custom config flow."""
@@ -27,17 +35,13 @@ class UiprotectalarmsFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
         self._password = None
         self._host = None
         self._port = 443
-        self.data_schema = OrderedDict()
-        self.data_schema[vol.Required(CONF_USERNAME)] = str
-        self.data_schema[vol.Required(CONF_PASSWORD)] = str
-        self.data_schema[vol.Required(CONF_HOST)] = str
 
     @callback
     def _show_form(self, errors=None):
         """Show form to the user."""
         return self.async_show_form(
             step_id="user",
-            data_schema=vol.Schema(self.data_schema),
+            data_schema=DATA_SCHEMA,
             errors=errors if errors else {},
         )
 
@@ -46,7 +50,7 @@ class UiprotectalarmsFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
         if self._async_current_entries():
             return self.async_abort(reason="single_instance_allowed")
 
-        if not user_input:
+        if user_input is None:
             return self._show_form()
 
         self._username = user_input[CONF_USERNAME]
@@ -80,9 +84,9 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
     def __init__(self, config_entry: config_entries.ConfigEntry) -> None:
         self.config_entry = config_entry
 
-    async def async_step_init(self, user_input: Dict[str, Any] = None) -> Dict[str, Any]:
+    async def async_step_init(self, user_input: dict[str, Any] | None = None) -> dict[str, Any]:
         """Manage the options for the custom component."""
-        errors: Dict[str, str] = {}
+        errors: dict[str, str] = {}
 
         _LOGGER.debug("Options Flow Step Init")
         if user_input is not None:
