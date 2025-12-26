@@ -45,6 +45,18 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> b
 
     _LOGGER.info("%d UIProtect automations found", len(pyuiprotectalarms_manager.automations))
 
+    # Load users first (needed for updating notifications for all users)
+    load_users = await hass.async_add_executor_job(pyuiprotectalarms_manager.load_users)
+    if load_users:
+        _LOGGER.info("%d UIProtect users found", len(pyuiprotectalarms_manager._users))
+    
+    # Load notifications (non-blocking, continue even if it fails)
+    load_notifications = await hass.async_add_executor_job(pyuiprotectalarms_manager.load_notifications)
+    if load_notifications:
+        _LOGGER.info("%d UIProtect notifications found", len(pyuiprotectalarms_manager.notifications))
+    else:
+        _LOGGER.warning("Unable to load notifications, continuing without notification controls")
+
     platforms = set()
     platforms.add(Platform.SWITCH)
 
@@ -57,10 +69,12 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> b
     await hass.config_entries.async_forward_entry_setups(config_entry, platforms)
 
     async def async_refresh_automations(service: ServiceCall) -> None:
-        """Refresh the automations."""
-        _LOGGER.debug("Refreshing automations")
+        """Refresh the automations, notifications, and users."""
+        _LOGGER.debug("Refreshing automations, notifications, and users")
         
         await hass.async_add_executor_job(pyuiprotectalarms_manager.load_automations)
+        await hass.async_add_executor_job(pyuiprotectalarms_manager.load_users)
+        await hass.async_add_executor_job(pyuiprotectalarms_manager.load_notifications)
     
     hass.services.async_register(
         DOMAIN, SERVICE_REFRESH_ALARMS, async_refresh_automations

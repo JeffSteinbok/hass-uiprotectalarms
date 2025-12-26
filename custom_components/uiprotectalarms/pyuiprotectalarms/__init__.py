@@ -25,6 +25,7 @@ from .constants import (
 from .helpers import Helpers
 from .exceptions import (NvrError, NotAuthorized, BadRequest)
 from .pyuiprotectautomation import PyUIProtectAutomation
+from .pyuiprotectnotification import PyUIProtectNotification
 
 TOKEN_COOKIE_MAX_EXP_SECONDS = 60
 
@@ -73,6 +74,8 @@ class PyUIProtectAlarms:
         
         self._automation_rule_prefix = None
         self._automations : dict[str, PyUIProtectAutomation] = {}
+        self._notifications : dict[str, PyUIProtectNotification] = {}
+        self._users : list[dict] = []
 
         self._update_url()
 
@@ -90,6 +93,11 @@ class PyUIProtectAlarms:
     def automations(self) -> dict[PyUIProtectAutomation]:
         """Return the automations."""
         return self._automations
+
+    @property
+    def notifications(self) -> dict[PyUIProtectNotification]:
+        """Return the notifications."""
+        return self._notifications
 
     def _update_cookiename(self, cookie: SimpleCookie) -> None:
         if "UOS_TOKEN" in cookie:
@@ -224,6 +232,60 @@ class PyUIProtectAlarms:
 
         return True
 
+    def load_users(self) -> bool:
+        """Load list of users from the Unifi Protect API."""
+        _LOGGER.debug("PyUIProtectAlarms: load_users")
+
+        response, status_code = self.call_uiprotect_api(UIProtectApi.GET_USERS)
+        if status_code != 200:  
+            _LOGGER.warning("Unable to load users, status code: %s", status_code)
+            return False
+
+        if not isinstance(response, list):
+            _LOGGER.warning("Users response is not a list: %s", type(response))
+            return False
+
+        self._users = response
+        _LOGGER.info("Loaded %d users from UniFi Protect", len(self._users))
+        return True
+
+    def load_notifications(self) -> bool:
+        """Load notifications from the Unifi Protect API.
+        
+        Note: This loads notification settings for the authenticated user.
+        When updating, we will update for all users.
+        """
+        _LOGGER.debug("PyUIProtectAlarms: load_notifications")
+
+        # First, try to load users if not already loaded
+        if not self._users:
+            self.load_users()
+
+        response, status_code = self.call_uiprotect_api(UIProtectApi.GET_NOTIFICATIONS)
+        if status_code != 200:  
+            _LOGGER.warning("Unable to load notifications, status code: %s", status_code)
+            return False
+
+        if not isinstance(response, list):
+            _LOGGER.warning("Notifications response is not a list: %s", type(response))
+            return False
+
+        for notification_details in response:
+            notification_id = notification_details.get("id")
+            if notification_id is None:
+                # Use type or name as fallback ID
+                notification_id = notification_details.get("type") or notification_details.get("name", "unknown")
+            
+            notification_obj = self._notifications.get(notification_id) or None
+            _LOGGER.debug("PyUIProtectAlarms: load_notifications: notification_id=%s, notification_obj=%s", notification_id, notification_obj)
+            
+            if notification_obj is None:
+                notification_obj = PyUIProtectNotification(notification_details, self)
+                self._notifications[notification_obj.id] = notification_obj
+            else:
+                notification_obj.handle_server_update_base(notification_details)
+
+        return True
 
     def _update_last_token_cookie(self, response: requests.Response) -> None:
         """Update the last token cookie."""
