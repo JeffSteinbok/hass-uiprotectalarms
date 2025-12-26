@@ -116,6 +116,9 @@ class UIProtectAlarmsNotificationSwitchHA(UIProtectAlarmsBaseEntityHA, SwitchEnt
             self.entity_description.attr_name, 
             True
         )
+        # Update state manually after operation completes
+        # We're already in the event loop here, so this is safe
+        self.async_write_ha_state()
 
     async def async_turn_off(self, **kwargs: Any) -> None:
         """Turn the notification channel off."""
@@ -129,4 +132,7 @@ class UIProtectAlarmsNotificationSwitchHA(UIProtectAlarmsBaseEntityHA, SwitchEnt
             self.entity_description.attr_name,
             False
         )
+        # Update state manually after operation completes
+        # We're already in the event loop here, so this is safe
+        self.async_write_ha_state()
 

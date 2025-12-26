@@ -214,9 +214,8 @@ class PyUIProtectNotification(PyUIProtectBaseObject):
             self._push_enabled = "push" in self._raw_details.get("channels", [])
             self._email_enabled = "email" in self._raw_details.get("channels", [])
             
-            # Trigger callbacks manually but in a safe way
-            # The callbacks will use call_soon_threadsafe to update HA state
-            automation._do_callbacks()
+            # Don't trigger callbacks here - they will be triggered manually
+            # from the entity after the async operation completes
         else:
             _LOGGER.error("Failed to update automation %s, status: %s", 
                          self._automation_id, status_code)
