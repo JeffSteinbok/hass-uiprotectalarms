@@ -57,21 +57,12 @@ class PyUIProtectNotification(PyUIProtectBaseObject):
         """Enable or disable push notifications."""
         if self._raw_details is None:
             return
-            
-        # Update the channels array
-        if "channels" not in self._raw_details:
-            self._raw_details["channels"] = []
         
-        if value:
-            # Add push channel if not present
-            if "push" not in self._raw_details["channels"]:
-                self._raw_details["channels"].append("push")
-        else:
-            # Remove push channel if present
-            if "push" in self._raw_details["channels"]:
-                self._raw_details["channels"].remove("push")
+        # Update local state first
+        self._push_enabled = value
         
-        self._update_notification()
+        # Update via automation if available
+        self._update_notification_channel("push", value)
     
     @property
     def email_enabled(self) -> bool:
@@ -83,31 +74,23 @@ class PyUIProtectNotification(PyUIProtectBaseObject):
         """Enable or disable email notifications."""
         if self._raw_details is None:
             return
-            
-        # Update the channels array
-        if "channels" not in self._raw_details:
-            self._raw_details["channels"] = []
         
-        if value:
-            # Add email channel if not present
-            if "email" not in self._raw_details["channels"]:
-                self._raw_details["channels"].append("email")
-        else:
-            # Remove email channel if present
-            if "email" in self._raw_details["channels"]:
-                self._raw_details["channels"].remove("email")
+        # Update local state first
+        self._email_enabled = value
         
-        self._update_notification()
+        # Update via automation if available
+        self._update_notification_channel("email", value)
 
-    def _update_notification(self):
-        """Update the notification settings via API for all users."""
+    def _update_notification_channel(self, channel: str, enabled: bool):
+        """Update a specific notification channel (push or email) for all users."""
         if self._raw_details is None or self._id is None:
             return
         
         # If this notification was extracted from an automation, update the automation instead
         if hasattr(self, '_automation_id') and self._automation_id:
-            _LOGGER.debug("Updating notification via automation %s", self._automation_id)
-            self._update_notification_via_automation()
+            _LOGGER.debug("Updating notification channel %s=%s via automation %s", 
+                         channel, enabled, self._automation_id)
+            self._update_notification_via_automation(channel, enabled)
             return
         
         # Get list of users
@@ -162,8 +145,8 @@ class PyUIProtectNotification(PyUIProtectBaseObject):
             _LOGGER.warning("All user-specific updates failed, trying single update")
             self._update_notification_single()
     
-    def _update_notification_via_automation(self):
-        """Update notification by updating the automation that contains it."""
+    def _update_notification_via_automation(self, channel: str, enabled: bool):
+        """Update notification channel by updating the automation that contains it."""
         if not hasattr(self, '_automation_id') or not self._automation_id:
             return
         
@@ -172,12 +155,7 @@ class PyUIProtectNotification(PyUIProtectBaseObject):
             _LOGGER.error("Automation %s not found for notification update", self._automation_id)
             return
         
-        # Get list of users
-        users = getattr(self._uiProtectAlarms, '_users', [])
-        if not users:
-            _LOGGER.warning("No users found, trying to load users first")
-            self._uiProtectAlarms.load_users()
-            users = getattr(self._uiProtectAlarms, '_users', [])
+        _LOGGER.debug("Updating channel %s to %s in automation %s", channel, enabled, self._automation_id)
         
         # Update channels in all receivers for all users
         actions = automation.raw_details.get("actions", [])
@@ -188,13 +166,30 @@ class PyUIProtectNotification(PyUIProtectBaseObject):
                 
                 # Update channels for all receivers
                 for receiver in receivers:
-                    # Build channels list based on current state
-                    channels = []
-                    if self._push_enabled:
-                        channels.append("push")
-                    if self._email_enabled:
-                        channels.append("email")
+                    # Get current channels or initialize empty list
+                    channels = receiver.get("channels", [])
+                    if not isinstance(channels, list):
+                        channels = []
+                    
+                    # Update the specific channel while preserving others
+                    if enabled:
+                        # Add channel if not present
+                        if channel not in channels:
+                            channels.append(channel)
+                            _LOGGER.debug("Added channel %s to receiver %s", channel, receiver.get("user"))
+                    else:
+                        # Remove channel if present
+                        if channel in channels:
+                            channels.remove(channel)
+                            _LOGGER.debug("Removed channel %s from receiver %s", channel, receiver.get("user"))
+                    
                     receiver["channels"] = channels
+                    _LOGGER.debug("Receiver %s now has channels: %s", receiver.get("user"), channels)
+        
+        # Log the automation details before update
+        _LOGGER.debug("Updating automation %s with details: %s", 
+                     self._automation_id, 
+                     str(automation.raw_details)[:500])  # Limit log size
         
         # Update the automation
         response, status_code = self._uiProtectAlarms.call_uiprotect_api(
@@ -204,21 +199,34 @@ class PyUIProtectNotification(PyUIProtectBaseObject):
         )
         
         if status_code == 200:
-            _LOGGER.info("Updated notification %s via automation %s for all users", 
-                        self._name, self._automation_id)
+            _LOGGER.info("Successfully updated notification %s (channel %s=%s) via automation %s for all users", 
+                        self._name, channel, enabled, self._automation_id)
             # Don't call handle_server_update_base here as it triggers callbacks
             # that might be called from wrong thread. Just update local state.
             if response:
                 automation.update_state(response)
-            # Update local notification state
-            self._push_enabled = "push" in self._raw_details.get("channels", [])
-            self._email_enabled = "email" in self._raw_details.get("channels", [])
-            
-            # Don't trigger callbacks here - they will be triggered manually
-            # from the entity after the async operation completes
+                # Update local notification state from response
+                # Extract channels from the response
+                actions = response.get("actions", [])
+                for action in actions:
+                    if action.get("type") == "SEND_NOTIFICATION":
+                        metadata = action.get("metadata", {})
+                        receivers = metadata.get("receivers", [])
+                        if receivers:
+                            # Get channels from first receiver (they should all be the same)
+                            updated_channels = receivers[0].get("channels", [])
+                            self._push_enabled = "push" in updated_channels
+                            self._email_enabled = "email" in updated_channels
+                            _LOGGER.debug("Updated local state: push=%s, email=%s", 
+                                         self._push_enabled, self._email_enabled)
+                            break
+            else:
+                # If no response, just keep the local state we set
+                _LOGGER.debug("No response from API, keeping local state: push=%s, email=%s", 
+                             self._push_enabled, self._email_enabled)
         else:
-            _LOGGER.error("Failed to update automation %s, status: %s", 
-                         self._automation_id, status_code)
+            _LOGGER.error("Failed to update automation %s, status: %s, response: %s", 
+                         self._automation_id, status_code, response)
     
     def _update_notification_single(self):
         """Update notification for current user only (fallback method)."""
