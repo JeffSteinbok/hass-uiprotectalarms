@@ -104,6 +104,12 @@ class PyUIProtectNotification(PyUIProtectBaseObject):
         if self._raw_details is None or self._id is None:
             return
         
+        # If this notification was extracted from an automation, update the automation instead
+        if hasattr(self, '_automation_id') and self._automation_id:
+            _LOGGER.debug("Updating notification via automation %s", self._automation_id)
+            self._update_notification_via_automation()
+            return
+        
         # Get list of users
         users = getattr(self._uiProtectAlarms, '_users', [])
         
@@ -156,6 +162,55 @@ class PyUIProtectNotification(PyUIProtectBaseObject):
             _LOGGER.warning("All user-specific updates failed, trying single update")
             self._update_notification_single()
     
+    def _update_notification_via_automation(self):
+        """Update notification by updating the automation that contains it."""
+        if not hasattr(self, '_automation_id') or not self._automation_id:
+            return
+        
+        automation = self._uiProtectAlarms.automations.get(self._automation_id)
+        if not automation or not automation.raw_details:
+            _LOGGER.error("Automation %s not found for notification update", self._automation_id)
+            return
+        
+        # Get list of users
+        users = getattr(self._uiProtectAlarms, '_users', [])
+        if not users:
+            _LOGGER.warning("No users found, trying to load users first")
+            self._uiProtectAlarms.load_users()
+            users = getattr(self._uiProtectAlarms, '_users', [])
+        
+        # Update channels in all receivers for all users
+        actions = automation.raw_details.get("actions", [])
+        for action in actions:
+            if action.get("type") == "SEND_NOTIFICATION":
+                metadata = action.get("metadata", {})
+                receivers = metadata.get("receivers", [])
+                
+                # Update channels for all receivers
+                for receiver in receivers:
+                    # Build channels list based on current state
+                    channels = []
+                    if self._push_enabled:
+                        channels.append("push")
+                    if self._email_enabled:
+                        channels.append("email")
+                    receiver["channels"] = channels
+        
+        # Update the automation
+        response, status_code = self._uiProtectAlarms.call_uiprotect_api(
+            UIProtectApi.UPDATE_AUTOMATION, 
+            self._automation_id, 
+            automation.raw_details
+        )
+        
+        if status_code == 200:
+            _LOGGER.info("Updated notification %s via automation %s for all users", 
+                        self._name, self._automation_id)
+            automation.handle_server_update_base(response)
+        else:
+            _LOGGER.error("Failed to update automation %s, status: %s", 
+                         self._automation_id, status_code)
+    
     def _update_notification_single(self):
         """Update notification for current user only (fallback method)."""
         if self._raw_details is None or self._id is None:
@@ -188,6 +243,9 @@ class PyUIProtectNotification(PyUIProtectBaseObject):
         self._raw_details = state
         self._id = state.get("id")
         self._name = state.get("name") or state.get("type", "Unknown")
+        
+        # Store automation_id if this notification was extracted from an automation
+        self._automation_id = state.get("automation_id")
         
         # Parse channels to determine push and email status
         channels = state.get("channels", [])

@@ -254,6 +254,9 @@ class PyUIProtectAlarms:
         
         Note: This loads notification settings for the authenticated user.
         When updating, we will update for all users.
+        
+        First tries the dedicated notifications endpoint, if that fails,
+        extracts notifications from automations.
         """
         _LOGGER.debug("PyUIProtectAlarms: load_notifications")
 
@@ -261,31 +264,98 @@ class PyUIProtectAlarms:
         if not self._users:
             self.load_users()
 
+        # Try dedicated notifications endpoint first
         response, status_code = self.call_uiprotect_api(UIProtectApi.GET_NOTIFICATIONS)
-        if status_code != 200:  
-            _LOGGER.warning("Unable to load notifications, status code: %s", status_code)
+        _LOGGER.debug("Notifications endpoint response: status_code=%s, response_type=%s", status_code, type(response))
+        
+        if status_code == 200 and isinstance(response, list) and len(response) > 0:
+            _LOGGER.info("Loaded %d notifications from dedicated endpoint", len(response))
+            for notification_details in response:
+                notification_id = notification_details.get("id")
+                if notification_id is None:
+                    notification_id = notification_details.get("type") or notification_details.get("name", "unknown")
+                
+                notification_obj = self._notifications.get(notification_id) or None
+                if notification_obj is None:
+                    notification_obj = PyUIProtectNotification(notification_details, self)
+                    self._notifications[notification_obj.id] = notification_obj
+                else:
+                    notification_obj.handle_server_update_base(notification_details)
+            return True
+        
+        # If dedicated endpoint doesn't work, extract from automations
+        _LOGGER.info("Notifications endpoint not available (status_code=%s), extracting from automations", status_code)
+        return self._extract_notifications_from_automations()
+    
+    def _extract_notifications_from_automations(self) -> bool:
+        """Extract notification settings from automations."""
+        _LOGGER.debug("Extracting notifications from automations")
+        
+        if not self._automations:
+            _LOGGER.warning("No automations available to extract notifications from")
             return False
-
-        if not isinstance(response, list):
-            _LOGGER.warning("Notifications response is not a list: %s", type(response))
-            return False
-
-        for notification_details in response:
-            notification_id = notification_details.get("id")
-            if notification_id is None:
-                # Use type or name as fallback ID
-                notification_id = notification_details.get("type") or notification_details.get("name", "unknown")
+        
+        # Group automations by notification type
+        notification_types = {}
+        
+        for automation in self._automations.values():
+            if not hasattr(automation, 'raw_details') or not automation.raw_details:
+                _LOGGER.debug("Automation %s has no raw_details, skipping", automation.name)
+                continue
+                
+            automation_name = automation.name
+            _LOGGER.debug("Processing automation: %s", automation_name)
             
-            notification_obj = self._notifications.get(notification_id) or None
-            _LOGGER.debug("PyUIProtectAlarms: load_notifications: notification_id=%s, notification_obj=%s", notification_id, notification_obj)
+            # Extract notification actions from automation
+            actions = automation.raw_details.get("actions", [])
+            _LOGGER.debug("Automation %s has %d actions", automation_name, len(actions))
             
+            for action in actions:
+                if action.get("type") == "SEND_NOTIFICATION":
+                    _LOGGER.debug("Found SEND_NOTIFICATION action in automation %s", automation_name)
+                    metadata = action.get("metadata", {})
+                    receivers = metadata.get("receivers", [])
+                    
+                    # Collect all channels from all receivers
+                    all_channels = set()
+                    for receiver in receivers:
+                        receiver_channels = receiver.get("channels", [])
+                        all_channels.update(receiver_channels)
+                    
+                    channels = list(all_channels) if all_channels else []
+                    _LOGGER.debug("Automation %s has channels: %s", automation_name, channels)
+                    
+                    # Use automation name as notification type
+                    notification_type = automation_name
+                    
+                    if notification_type not in notification_types:
+                        notification_types[notification_type] = {
+                            "id": automation.id,
+                            "name": notification_type,
+                            "type": notification_type,
+                            "channels": channels.copy() if channels else [],
+                            "automation_id": automation.id  # Store automation ID for updates
+                        }
+                    else:
+                        # Merge channels if notification type already exists
+                        existing_channels = set(notification_types[notification_type]["channels"])
+                        existing_channels.update(channels)
+                        notification_types[notification_type]["channels"] = list(existing_channels)
+        
+        # Create notification objects
+        for notification_type, notification_data in notification_types.items():
+            _LOGGER.debug("Creating notification object for: %s with channels: %s", 
+                         notification_type, notification_data["channels"])
+            notification_obj = self._notifications.get(notification_type) or None
             if notification_obj is None:
-                notification_obj = PyUIProtectNotification(notification_details, self)
+                notification_obj = PyUIProtectNotification(notification_data, self)
                 self._notifications[notification_obj.id] = notification_obj
             else:
-                notification_obj.handle_server_update_base(notification_details)
-
-        return True
+                notification_obj.handle_server_update_base(notification_data)
+        
+        _LOGGER.info("Extracted %d notification types from automations: %s", 
+                    len(notification_types), list(notification_types.keys()))
+        return len(notification_types) > 0
 
     def _update_last_token_cookie(self, response: requests.Response) -> None:
         """Update the last token cookie."""
