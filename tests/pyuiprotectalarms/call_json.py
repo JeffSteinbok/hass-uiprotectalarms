@@ -45,5 +45,5 @@ LOGIN_RET_BODY = (
 )
 
 def get_response_from_file(filename: str) -> json:
-    with open("tests/api_responses/" + filename, 'r') as file:
+    with open("tests/pyuiprotectalarms/api_responses/" + filename, 'r') as file:
         return json.load(file)

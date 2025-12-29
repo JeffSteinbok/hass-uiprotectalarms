@@ -1,13 +1,60 @@
-# PyUIProtectAlarms Unit Tests
+# UIProtectAlarms Tests
 
-*This aims to briefly describe how these unit-tests are setup. Note that this is my first attempt at Python UnitTesting, so there is likely a much better way to do some of this. If you have suggestions, let me know.*
+This directory contains tests for the UIProtectAlarms Home Assistant integration.
 
-- All tests inherit off TestBase.py
-- All API responses are in the **api_responses** folder.
-    - Tests can specify a version of get_devices response for their specific scenarios. 
-        - Recommendation would be to have seperate get_devices files for each device to test.
-    - Each device initial state is in a JSON file named get_device_state_[sn].json
-    - Sensitive information should be redacted.
-- Tests can/should call the setters to change device settings and inspect the parameters sent on the websocket.
+## Test Structure
 
-Please feel free to contribute more tests for various device types.
+The tests are organized into two main directories:
+
+### `pyuiprotectalarms/`
+Unit tests for the core PyUIProtectAlarms Python library that handles UniFi Protect API communication.
+- API functionality tests
+- Helper function tests  
+- Mock API responses in `api_responses/` folder
+- All tests inherit from `TestBase` class
+
+### `uiprotectalarms/`
+Tests for the Home Assistant integration layer.
+- Config flow tests
+- Entity tests
+- Integration tests
+- Platform tests (switches, sensors, etc.)
+
+## Running Tests
+
+```bash
+# Run all tests
+pytest
+
+# Run only pyuiprotectalarms tests
+pytest tests/pyuiprotectalarms/
+
+# Run only Home Assistant integration tests
+pytest tests/uiprotectalarms/
+
+# Run with verbose output
+pytest -v
+
+# Run with coverage
+pytest --cov=custom_components.uiprotectalarms
+```
+
+## Test Requirements
+
+Required packages are listed in `requirements.test.txt`:
+- pytest
+- pytest-asyncio
+- pytest-homeassistant-custom-component (for Home Assistant integration tests)
+
+Install with:
+```bash
+pip install -r requirements.test.txt
+```
+
+## Contributing Tests
+
+Please feel free to contribute more tests! When adding tests:
+- Place library tests in `pyuiprotectalarms/`
+- Place Home Assistant integration tests in `uiprotectalarms/`
+- Add API response mocks to `pyuiprotectalarms/api_responses/`
+- Redact sensitive information from mock responses

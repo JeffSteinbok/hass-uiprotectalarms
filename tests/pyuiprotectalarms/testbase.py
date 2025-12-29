@@ -11,7 +11,7 @@ from . import call_json
 
 logger = logging.getLogger(__name__)
 
-API_REPONSE_BASE_PATH = 'tests/api_responses/'
+API_REPONSE_BASE_PATH = 'tests/pyuiprotectalarms/api_responses/'
 
 PATCH_BASE_PATH = 'custom_components.uiprotectalarms.pyuiprotectalarms'
 PATCH_SEND_COMMAND = f'{PATCH_BASE_PATH}.PyUIProtectAlarms.send_command'
