@@ -48,11 +48,14 @@ class PyUIProtectAutomation(PyUIProtectBaseObject):
         if (value is True):
             if (self._name.endswith(" (Disabled)")):
                 self._raw_details["name"] = self._name[:-11]
+                self._name = self._name[:-11]
         else:
             if (not self._name.endswith(" (Disabled)")):
                 self._raw_details["name"] = self._name + " (Disabled)"
+                self._name = self._name + " (Disabled)"
 
         self._raw_details["enable"] = value
+        self._enabled = value
         
         response, status_code = self._uiProtectAlarms.call_uiprotect_api(UIProtectApi.UPDATE_AUTOMATION, self._id, self._raw_details)
         if (status_code == 200):
