@@ -13,8 +13,6 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
 class TestGeneralAPI(TestBase):
-    """General API testing class for login() and get_devices()."""
-
     def test_get_automations(self):
         """Test get_devices() method request and API response."""
 
