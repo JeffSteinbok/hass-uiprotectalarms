@@ -1,4 +1,7 @@
 # HomeAssistant Plugin for Enabling/Disabling Unifi Protect Alarms
+
+[![CI Validation](https://github.com/JeffSteinbok/hass-uiprotectalarms/actions/workflows/ci.yaml/badge.svg)](https://github.com/JeffSteinbok/hass-uiprotectalarms/actions/workflows/ci.yaml)
+[![Release Automation](https://github.com/JeffSteinbok/hass-uiprotectalarms/actions/workflows/release.yaml/badge.svg)](https://github.com/JeffSteinbok/hass-uiprotectalarms/actions/workflows/release.yaml)
 [![hacs_badge](https://img.shields.io/badge/HACS-Custom-41BDF5.svg?style=for-the-badge)](https://github.com/hacs/integration)
 
 This integration is heavily based on the work done on the official (unofficial) Unifi Protect Python library here:  https://github.com/uilibs/uiprotect.
