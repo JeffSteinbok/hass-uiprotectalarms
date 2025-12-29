@@ -51,6 +51,7 @@ class Helpers:
                         '((?<=token": ")|',
                         '(?<=password": ")|',
                         '(?<=email": ")|',
+                        '(?<=username": ")|',
                         '(?<=tk": ")|',
                         '(?<=accountId": ")|',
                         '(?<=authKey": ")|',
