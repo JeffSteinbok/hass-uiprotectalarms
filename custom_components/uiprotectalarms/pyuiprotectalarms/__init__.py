@@ -43,6 +43,10 @@ def get_user_hash(host: str, username: str) -> str:
     session.update(username.encode("utf8"))
     return session.hexdigest()
 
+def get_response_reason(response: aiohttp.ClientResponse) -> str:
+    """Get the reason from the response."""
+    return response.reason or "Unknown"
+
 class PyUIProtectAlarms:
     """Class to communicate with the Unifi Protect server."""
     _host: str
