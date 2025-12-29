@@ -58,7 +58,7 @@ class PyUIProtectAutomation(PyUIProtectBaseObject):
         self._enabled = value
         
         response, status_code = self._uiProtectAlarms.call_uiprotect_api(UIProtectApi.UPDATE_AUTOMATION, self._id, self._raw_details)
-        if (status_code == 200):
+        if (status_code == 200 and response):
             self.handle_server_update_base(response)
 
     @property
