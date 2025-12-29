@@ -8,5 +8,5 @@
   "iot_class": "cloud_push",
   "issue_tracker": "https://github.com/jeffsteinbok/hass-uiprotectalarms/issues",  
   "loggers": ["uiprotectalarms", "pyuiprotectalarms"],
-  "version": "0.0.1"
+  "version": "0.0.2"
 }
