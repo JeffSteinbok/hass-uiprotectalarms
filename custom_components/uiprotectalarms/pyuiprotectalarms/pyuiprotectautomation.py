@@ -4,13 +4,12 @@ import logging
 from typing import TYPE_CHECKING, Dict
 
 from .constants import (
-        LOGGER_NAME,
         UIProtectApi
 )
 
 from .pyuiprotectbaseobject import PyUIProtectBaseObject
 
-_LOGGER = logging.getLogger(LOGGER_NAME)
+_LOGGER = logging.getLogger(__name__)
 
 if TYPE_CHECKING:
     from pyuiprotectalarms import PyUIProtectAlarms

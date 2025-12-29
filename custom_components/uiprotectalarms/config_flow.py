@@ -12,7 +12,7 @@ from .const import (
 )
 from .pyuiprotectalarms import PyUIProtectAlarms
 
-_LOGGER = logging.getLogger("uiprotectalarms")
+_LOGGER = logging.getLogger(__name__)
 
 class UiprotectalarmsFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
     """Uiprotectalarms Custom config flow."""

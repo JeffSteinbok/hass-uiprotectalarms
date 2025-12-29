@@ -3,12 +3,11 @@ import threading
 import logging
 from typing import Dict
 from typing import TYPE_CHECKING
-from .constants import LOGGER_NAME
 
 if TYPE_CHECKING:
     from pyuiprotectalarms import PyUIProtectAlarms
 
-_LOGGER = logging.getLogger(LOGGER_NAME)
+_LOGGER = logging.getLogger(__name__)
 
 class UnknownProductError(Exception):
     """Exception thrown when we don't recognize a product of a device."""

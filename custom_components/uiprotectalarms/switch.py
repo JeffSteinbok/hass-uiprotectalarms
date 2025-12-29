@@ -15,9 +15,9 @@ from .pyuiprotectalarms import PyUIProtectAlarms
 from .pyuiprotectalarms.pyuiprotectautomation import PyUIProtectAutomation
 from .baseentity import UIProtectAlarmsBaseEntityHA
 
-from .const import LOGGER, DOMAIN, PYUIPROTECTALARMS_MANAGER
+from .const import DOMAIN, PYUIPROTECTALARMS_MANAGER
 
-_LOGGER = logging.getLogger(LOGGER)
+_LOGGER = logging.getLogger(__name__)
 
 
 @dataclass

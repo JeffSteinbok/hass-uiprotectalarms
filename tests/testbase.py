@@ -14,8 +14,8 @@ logger = logging.getLogger(__name__)
 API_REPONSE_BASE_PATH = 'tests/api_responses/'
 
 PATCH_BASE_PATH = 'custom_components.uiprotectalarms.pyuiprotectalarms'
-PATCH_SEND_COMMAND = f'{PATCH_BASE_PATH}.pyuiprotectalarms.send_command'
-PATCH_CALL_UIPROTECT_API = f'{PATCH_BASE_PATH}.pyuiprotectalarms.call_uiprotect_api'
+PATCH_SEND_COMMAND = f'{PATCH_BASE_PATH}.PyUIProtectAlarms.send_command'
+PATCH_CALL_UIPROTECT_API = f'{PATCH_BASE_PATH}.PyUIProtectAlarms.call_uiprotect_api'
 
 Defaults = defaults.Defaults
 
@@ -51,8 +51,7 @@ class TestBase:
         self.uiProtectApiClient = PyUIProtectAlarms(
             username='USERNAME', 
             password='PASSWORD',
-            host='192.168.1.123',
-            port=443
+            host='192.168.1.123'
             )
         
         caplog.set_level(logging.DEBUG)

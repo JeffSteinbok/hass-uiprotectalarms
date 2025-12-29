@@ -1,6 +1,5 @@
 """Constants for Uiprotectalarms Integration for HomeAssistant."""
 
-LOGGER = "uiprotectalarms"
 DOMAIN = "uiprotectalarms"
 UIPROTECTALARMS_DISCOVERY = "uiprotectalarms_discovery_{}"
 SERVICE_UPDATE_DEVS = "update_devices"

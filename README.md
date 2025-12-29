@@ -38,8 +38,7 @@ This integration logs to two loggers as shown below. To get verbose logs, change
 ```
 logger:
     logs:
-        uiprotectalarms: info
-        pyuiprotectalarms: info
+        custom_components.uiprotectalarms: debug
 ```
 
 <a name="todo"></a>

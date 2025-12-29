@@ -1,8 +1,6 @@
 """Constants for the UIProtect Alarms integration."""
 from enum import StrEnum
 
-LOGGER_NAME = "pyuiprotectalarms"
-
 UIPROTECT_API_PATH = "path"
 UIPROTECT_API_METHOD = "method"
 

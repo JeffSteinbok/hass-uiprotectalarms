@@ -15,7 +15,6 @@ import requests
 import aiohttp
 from yarl import URL
 from .constants import (
-    LOGGER_NAME,
     UIProtectApi,
     UIPROTECT_APIS,
     UIPROTECT_API_PATH,
@@ -35,7 +34,7 @@ PROTECT_APT_URLS = [
     "https://apt.artifacts.ui.com/dists/bullseye/release/binary-arm64/Packages",
 ]
 
-_LOGGER = logging.getLogger(LOGGER_NAME)
+_LOGGER = logging.getLogger(__name__)
 _COOKIE_RE = re.compile(r"^set-cookie: ", re.IGNORECASE)
 
 def get_user_hash(host: str, username: str) -> str:

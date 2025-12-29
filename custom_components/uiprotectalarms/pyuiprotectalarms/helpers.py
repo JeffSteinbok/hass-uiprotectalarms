@@ -1,34 +1,48 @@
 """Helper functions for PyUIProtectAlarms library."""
 
-import logging
-import time
 import json
-from typing import Optional, Union
+import logging
 import re
-import requests
+from typing import Optional, Union
+
 import jwt
-from http.cookies import Morsel
+import requests
 
-
-from .constants import LOGGER_NAME
 from .exceptions import *
 
+# Initialize logger using standard Python logging pattern
+_LOGGER = logging.getLogger(__name__)
 
-_LOGGER = logging.getLogger(LOGGER_NAME)
-
+# Timeout for API calls in seconds
 API_TIMEOUT = 30
 
+# Type alias for numeric values
 NUMERIC = Optional[Union[int, float, str]]
 
 
 class Helpers:
-    """Helper functions for PyUIProtectAlarms library."""
+    """Helper class providing utility functions for PyUIProtectAlarms library.
     
+    Includes methods for making HTTP API calls, redacting sensitive information,
+    and decoding authentication tokens.
+    """
+    
+    # Flag to enable/disable redaction of sensitive information in logs
     shouldredact = False
 
     @classmethod
     def redactor(cls, stringvalue: str) -> str:
-        """Redact sensitive strings from debug output."""
+        """Redact sensitive information from strings for safe logging.
+        
+        Replaces sensitive fields (tokens, passwords, emails, etc.) with '##_REDACTED_##'
+        when shouldredact is enabled.
+        
+        Args:
+            stringvalue: The string containing potentially sensitive information
+            
+        Returns:
+            The string with sensitive values redacted if shouldredact is True
+        """
         if cls.shouldredact:
             stringvalue = re.sub(
                 r"".join(
@@ -59,7 +73,23 @@ class Helpers:
         json_object: Optional[dict] = None,
         headers: Optional[dict] = None,
     ) -> requests.Response:
-        """Make API calls by passing endpoint, header and body."""
+        """Make HTTP API calls to UniFi Protect.
+        
+        Supports GET, POST, PUT, and PATCH methods. Logs request details at debug level.
+        
+        Args:
+            url: Base URL of the API server
+            api: API endpoint path
+            method: HTTP method (get, post, put, patch)
+            json_object: Optional JSON data to send with the request
+            headers: Optional HTTP headers
+            
+        Returns:
+            requests.Response object from the API call
+            
+        Raises:
+            requests.exceptions.RequestException: If the request fails
+        """
         response_object = None
         try:
             _LOGGER.debug("=======call_api=============================")
@@ -118,7 +148,20 @@ class Helpers:
         json_object: Optional[dict] = None,
         headers: Optional[dict] = None,
     ) -> tuple[dict, int]:
-        """Make API calls by passing endpoint, header and body."""
+        """Make HTTP API calls and parse JSON response.
+        
+        Wrapper around call_api that extracts and parses JSON response data.
+        
+        Args:
+            url: Base URL of the API server
+            api: API endpoint path
+            method: HTTP method (get, post, put, patch)
+            json_object: Optional JSON data to send with the request
+            headers: Optional HTTP headers
+            
+        Returns:
+            Tuple of (parsed JSON response dict or None, HTTP status code)
+        """
         response_object = None
         response = None
         status_code = 0
@@ -141,7 +184,16 @@ class Helpers:
 
     @staticmethod
     def decode_token_cookie(token_cookie: str) -> dict[str, any] | None:
-        """Decode a token cookie if it is still valid."""
+        """Decode and validate a JWT authentication token.
+        
+        Decodes the token without signature verification but checks expiration.
+        
+        Args:
+            token_cookie: JWT token string to decode
+            
+        Returns:
+            Decoded token payload as dict if valid, None if expired or invalid
+        """
         try:
             return jwt.decode(
                 token_cookie,

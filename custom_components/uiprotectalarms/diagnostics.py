@@ -13,8 +13,7 @@ from .pyuiprotectalarms import PyUIProtectAlarms
 from .haimports import * # pylint: disable=W0401,W0614
 from .const import (
     DOMAIN,
-    PYUIPROTECTALARMS_MANAGER,
-    LOGGER
+    PYUIPROTECTALARMS_MANAGER
 )
 
 KEYS_TO_REDACT = {
@@ -31,7 +30,7 @@ KEYS_TO_REDACT = {
     "productId"
 }
 
-_LOGGER = logging.getLogger(LOGGER)
+_LOGGER = logging.getLogger(__name__)
 
 
 async def async_get_config_entry_diagnostics(
