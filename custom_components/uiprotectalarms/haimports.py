@@ -24,28 +24,11 @@ from homeassistant.helpers.typing import StateType
 
 from homeassistant.core import callback
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
-from homeassistant.helpers.entity_registry import async_entries_for_config_entry
-from homeassistant.helpers.selector import (
-    TextSelector,
-    TextSelectorConfig,
-    TextSelectorType,
-)
 
 from homeassistant.helpers.entity import (
     DeviceInfo,
     Entity,
     EntityDescription
-)
-
-from homeassistant.util.percentage import (
-    int_states_in_range,
-    percentage_to_ranged_value,
-    ranged_value_to_percentage
-) 
-
-from homeassistant.components.fan import (
-    FanEntity, 
-    FanEntityFeature
 )
 
 from homeassistant.components.switch import (
@@ -54,14 +37,9 @@ from homeassistant.components.switch import (
 )
 
 from homeassistant.const import (
-    TEMPERATURE,
     ATTR_ENTITY_ID,
-    ATTR_TEMPERATURE,
-    PRECISION_HALVES,
-    PRECISION_TENTHS,
-    PRECISION_WHOLE,
     STATE_OFF,
-    STATE_ON,
-    UnitOfTemperature)
+    STATE_ON
+)
 
 from homeassistant.helpers import entity_platform

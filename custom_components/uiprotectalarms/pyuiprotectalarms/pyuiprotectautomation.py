@@ -1,7 +1,7 @@
 """Uiprotectalarms API for controling fans."""
 
 import logging
-from typing import TYPE_CHECKING, Dict
+from typing import TYPE_CHECKING
 
 from .constants import (
         UIProtectApi
@@ -18,7 +18,7 @@ if TYPE_CHECKING:
 class PyUIProtectAutomation(PyUIProtectBaseObject):
     """Class to represent a Unifi Protect Alarm Automation."""
 
-    def __init__(self, details: Dict[str, list], PyUIProtectAlarms: "PyUIProtectAlarms"):
+    def __init__(self, details: dict[str, list], PyUIProtectAlarms: "PyUIProtectAlarms"):
         super().__init__(details, PyUIProtectAlarms)
 
         self._name : str = None
