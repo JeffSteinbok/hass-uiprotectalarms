@@ -37,7 +37,7 @@ Copy the `uiprotectalarms` directory into your `/config/custom_components` direc
 ## Debugging
 Idealy, use the Diagnostics feature in HomeAssistant to get diagnostics from the integration. Sensitive info **WILL NOT BE REDACTED** so be careful.
 
-This integration logs to two loggers as shown below. To get verbose logs, change the log level.  Please have logs handy if you're reaching out for help.
+This integration logs as shown below. To get verbose logs, change the log level.  Please have logs handy if you're reaching out for help.
 
 ```
 logger:
