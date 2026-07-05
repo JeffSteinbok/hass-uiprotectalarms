@@ -48,7 +48,7 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> b
     # Load users first (needed for updating notifications for all users)
     load_users = await hass.async_add_executor_job(pyuiprotectalarms_manager.load_users)
     if load_users:
-        _LOGGER.info("%d UIProtect users found", len(pyuiprotectalarms_manager._users))
+        _LOGGER.info("%d UIProtect users found", len(pyuiprotectalarms_manager.users))
     
     # Load notifications (non-blocking, continue even if it fails)
     load_notifications = await hass.async_add_executor_job(pyuiprotectalarms_manager.load_notifications)

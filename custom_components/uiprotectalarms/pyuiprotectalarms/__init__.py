@@ -103,6 +103,11 @@ class PyUIProtectAlarms:
         """Return the notifications."""
         return self._notifications
 
+    @property
+    def users(self) -> list[dict]:
+        """Return the users."""
+        return self._users
+
     def _update_cookiename(self, cookie: SimpleCookie) -> None:
         if "UOS_TOKEN" in cookie:
             self._cookiename = "UOS_TOKEN"
@@ -363,6 +368,7 @@ class PyUIProtectAlarms:
         return len(notification_types) > 0
 
     def _update_last_token_cookie(self, response: requests.Response) -> None:
+        """Update the last token cookie."""
 
         csrf_token = response.headers.get("x-csrf-token")
         if (csrf_token is not None):

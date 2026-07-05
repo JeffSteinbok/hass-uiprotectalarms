@@ -1,4 +1,4 @@
-"""BaseDevice utilities for Dreo Component."""
+"""BaseDevice utilities for Protect Component."""
 
 import asyncio
 import logging
@@ -49,7 +49,7 @@ class UIProtectAlarmsBaseEntityHA(Entity):
         hass_ref = self.hass
 
         # Create a callback to update state in HA and add it a callback in
-        # the PyDreo device. This will cause all handle_server_update responses
+        # the PyUIProtectAlarms device. This will cause all handle_server_update responses
         # to update the state in HA.
         def update_state():
             # Schedule the state update in the event loop
