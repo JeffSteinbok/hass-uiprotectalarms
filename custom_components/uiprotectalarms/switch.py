@@ -15,9 +15,9 @@ from .pyuiprotectalarms import PyUIProtectAlarms
 from .pyuiprotectalarms.pyuiprotectautomation import PyUIProtectAutomation
 from .baseentity import UIProtectAlarmsBaseEntityHA
 
-from .const import DOMAIN, PYUIPROTECTALARMS_MANAGER
+from .const import LOGGER, DOMAIN, PYUIPROTECTALARMS_MANAGER
 
-_LOGGER = logging.getLogger(__name__)
+_LOGGER = logging.getLogger(LOGGER)
 
 
 @dataclass
@@ -71,9 +71,17 @@ async def async_setup_entry(
     pyuiprotectalarms_manager: PyUIProtectAlarms = hass.data[DOMAIN][PYUIPROTECTALARMS_MANAGER]
 
     switch_entities_ha : list[SwitchEntity] = []
+    
+    # Add automation switches
     switch_entities_to_add = get_entries(pyuiprotectalarms_manager.automations)
-
     switch_entities_ha.extend(switch_entities_to_add)
+    
+    # Add notification switches if available
+    if pyuiprotectalarms_manager.notifications:
+        from .notification_switch import get_notification_entries, UIProtectAlarmsNotificationSwitchHA
+        notification_switches = get_notification_entries(pyuiprotectalarms_manager.notifications)
+        switch_entities_ha.extend(notification_switches)
+        _LOGGER.info("Added %d notification switches", len(notification_switches))
 
     async_add_entities(switch_entities_ha)
 
