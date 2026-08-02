@@ -44,6 +44,16 @@ class PyUIProtectAutomation(PyUIProtectBaseObject):
     def enabled(self, value: bool):
         """Enable or disable the automation."""
 
+        # Refresh from the server before updating to avoid overwriting concurrent changes
+        # made directly in UniFi Protect since the integration was last loaded.
+        refresh_response, refresh_status = self._uiProtectAlarms.call_uiprotect_api(
+            UIProtectApi.GET_AUTOMATIONS, self._id
+        )
+        if refresh_status == 200 and refresh_response:
+            _LOGGER.debug("Refreshed automation %s before update", self._id)
+            self._raw_details = refresh_response
+            self._name = refresh_response.get("name", self._name)
+
         # If the automation is disabled, add (Disabled) to the name, and remove it if enabled.
         if (value is True):
             if (self._name.endswith(" (Disabled)")):
