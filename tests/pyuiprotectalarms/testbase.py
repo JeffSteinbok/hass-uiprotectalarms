@@ -72,11 +72,23 @@ class TestBase:
 
     def call_uiprotect_api(self,
         api: str,
+        path: Optional[str] = None,
         json_object: Optional[dict] = None):
         """Call Uiprotectalarms REST API"""
-        print(f'API call: {api} {json_object}')
-        logger.debug('API call: %s %s', api, json_object)
+        print(f'API call: {api} path={path} {json_object}')
+        logger.debug('API call: %s path=%s %s', api, path, json_object)
 
         if api == UIProtectApi.GET_AUTOMATIONS:
-            return (call_json.get_response_from_file(self._api_response_file_name), 200)
+            all_automations = call_json.get_response_from_file(self._api_response_file_name)
+            # If a specific automation ID was requested, return just that one
+            if path is not None:
+                for automation in all_automations:
+                    if automation.get("id") == path:
+                        return (automation, 200)
+                return (None, 404)
+            return (all_automations, 200)
+
+        if api == UIProtectApi.UPDATE_AUTOMATION:
+            # Echo back the submitted payload as if the server accepted it
+            return (json_object, 200)
 
