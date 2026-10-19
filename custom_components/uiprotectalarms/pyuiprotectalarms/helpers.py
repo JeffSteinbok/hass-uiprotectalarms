@@ -7,11 +7,17 @@ from typing import Optional, Union
 
 import jwt
 import requests
+import urllib3
 
 from .exceptions import *
 
 # Initialize logger using standard Python logging pattern
 _LOGGER = logging.getLogger(__name__)
+
+# UniFi Protect controllers typically use self-signed certificates, so
+# certificate verification is intentionally disabled for all API calls.
+# Suppress the resulting InsecureRequestWarning to avoid log spam.
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 # Timeout for API calls in seconds
 API_TIMEOUT = 30
@@ -123,7 +129,11 @@ class Helpers:
                 )
             elif method.lower() == "put":
                 response_object = requests.put(
-                    url + api, json=json_object, headers=headers, timeout=API_TIMEOUT
+                    url + api,
+                    json=json_object,
+                    headers=headers,
+                    timeout=API_TIMEOUT,
+                    verify=False
                 )
             elif method.lower() == "patch":
                 response_object = requests.patch(
