@@ -66,11 +66,31 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> b
         load_notifications = await hass.async_add_executor_job(pyuiprotectalarms_manager.load_notifications)
         if load_notifications:
             _LOGGER.info("%d UIProtect notifications found", len(pyuiprotectalarms_manager.notifications))
+            # Only clean up when the notification list loaded completely
+            _async_remove_stale_entities(
+                hass,
+                config_entry,
+                ("-push", "-email"),
+                {
+                    f"{notification_id}-{channel}"
+                    for notification_id in pyuiprotectalarms_manager.notifications
+                    for channel in ("push", "email")
+                },
+            )
         else:
             _LOGGER.warning("Unable to load notifications, continuing without notification controls")
     else:
         _LOGGER.info("Push/email notification switches disabled in options")
         _async_remove_notification_entities(hass, config_entry)
+
+    # load_automations() raises on any error, so the alarm list is complete here:
+    # remove switches of alarms that were deleted in UniFi Protect
+    _async_remove_stale_entities(
+        hass,
+        config_entry,
+        ("-Enabled",),
+        {f"{automation_id}-Enabled" for automation_id in pyuiprotectalarms_manager.automations},
+    )
 
     platforms = set()
     platforms.add(Platform.SWITCH)
@@ -118,6 +138,29 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> b
 async def _async_options_updated(hass: HomeAssistant, config_entry: ConfigEntry) -> None:
     """Reload the integration when its options change."""
     await hass.config_entries.async_reload(config_entry.entry_id)
+
+
+def _async_remove_stale_entities(
+    hass: HomeAssistant,
+    config_entry: ConfigEntry,
+    suffixes: tuple[str, ...],
+    valid_unique_ids: set[str],
+) -> None:
+    """Remove switches whose alarm/notification no longer exists in Protect.
+
+    Only entries of this config entry whose unique_id ends with one of the
+    given suffixes are considered, so the two switch types never affect
+    each other.
+    """
+    registry = er.async_get(hass)
+    for entry in er.async_entries_for_config_entry(registry, config_entry.entry_id):
+        if (
+            entry.domain == "switch"
+            and entry.unique_id.endswith(suffixes)
+            and entry.unique_id not in valid_unique_ids
+        ):
+            _LOGGER.info("Removing %s, it no longer exists in UniFi Protect", entry.entity_id)
+            registry.async_remove(entry.entity_id)
 
 
 def _async_remove_notification_entities(hass: HomeAssistant, config_entry: ConfigEntry) -> None:
