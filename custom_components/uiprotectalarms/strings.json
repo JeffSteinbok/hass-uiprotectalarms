@@ -21,7 +21,8 @@
         "init": {
           "title": "Unifi Protect Alarms Options",
           "data": {
-            "rule_prefix": "Only import alarms with this name starting with this"
+            "rule_prefix": "Only import alarms with this name starting with this",
+            "notification_switches": "Create push/email notification switches (changing them affects all Protect users)"
           }
         }
       }

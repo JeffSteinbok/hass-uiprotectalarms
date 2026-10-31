@@ -9,5 +9,7 @@ UIPROTECTALARMS_PLATFORMS = "platforms"
 
 CONF_AUTO_RECONNECT = "auto_reconnect"
 CONF_RULE_PREFIX = "rule_prefix"
+CONF_NOTIFICATION_SWITCHES = "notification_switches"
+DEFAULT_NOTIFICATION_SWITCHES = True
 
 SERVICE_REFRESH_ALARMS = "refresh_alarms"

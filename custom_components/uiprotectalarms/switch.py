@@ -17,7 +17,13 @@ from .baseentity import UIProtectAlarmsBaseEntityHA
 from .pyuiprotectalarms.exceptions import UnifiProtectError
 from homeassistant.exceptions import HomeAssistantError
 
-from .const import LOGGER, DOMAIN, PYUIPROTECTALARMS_MANAGER
+from .const import (
+    LOGGER,
+    DOMAIN,
+    PYUIPROTECTALARMS_MANAGER,
+    CONF_NOTIFICATION_SWITCHES,
+    DEFAULT_NOTIFICATION_SWITCHES,
+)
 
 _LOGGER = logging.getLogger(LOGGER)
 
@@ -79,7 +85,9 @@ async def async_setup_entry(
     switch_entities_ha.extend(switch_entities_to_add)
     
     # Add notification switches if available
-    if pyuiprotectalarms_manager.notifications:
+    if config_entry.options.get(
+        CONF_NOTIFICATION_SWITCHES, DEFAULT_NOTIFICATION_SWITCHES
+    ) and pyuiprotectalarms_manager.notifications:
         from .notification_switch import get_notification_entries, UIProtectAlarmsNotificationSwitchHA
         notification_switches = get_notification_entries(pyuiprotectalarms_manager.notifications)
         switch_entities_ha.extend(notification_switches)

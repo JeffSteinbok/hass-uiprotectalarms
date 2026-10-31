@@ -8,7 +8,9 @@ from .haimports import * # pylint: disable=W0401,W0614
 from .const import (
     DOMAIN,
     CONF_AUTO_RECONNECT,
-    CONF_RULE_PREFIX
+    CONF_RULE_PREFIX,
+    CONF_NOTIFICATION_SWITCHES,
+    DEFAULT_NOTIFICATION_SWITCHES
 )
 from .pyuiprotectalarms import PyUIProtectAlarms
 
@@ -94,9 +96,14 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
         if rule_prefix is None:
             rule_prefix = ""
 
+        notification_switches = self.config_entry.options.get(
+            CONF_NOTIFICATION_SWITCHES, DEFAULT_NOTIFICATION_SWITCHES
+        )
+
         options_schema = vol.Schema(
             {
-                vol.Optional(CONF_RULE_PREFIX, default=rule_prefix): str
+                vol.Optional(CONF_RULE_PREFIX, default=rule_prefix): str,
+                vol.Optional(CONF_NOTIFICATION_SWITCHES, default=notification_switches): bool,
             }
         )
         return self.async_show_form(
