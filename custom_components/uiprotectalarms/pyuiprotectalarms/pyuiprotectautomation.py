@@ -8,6 +8,7 @@ from .constants import (
 )
 
 from .pyuiprotectbaseobject import PyUIProtectBaseObject
+from .exceptions import NvrError
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -49,27 +50,30 @@ class PyUIProtectAutomation(PyUIProtectBaseObject):
         refresh_response, refresh_status = self._uiProtectAlarms.call_uiprotect_api(
             UIProtectApi.GET_AUTOMATIONS, self._id
         )
-        if refresh_status == 200 and refresh_response:
-            _LOGGER.debug("Refreshed automation %s before update", self._id)
-            self._raw_details = refresh_response
-            self._name = refresh_response.get("name", self._name)
+        if refresh_status != 200 or not refresh_response:
+            raise NvrError(f"Unable to read alarm {self._id} before update (status {refresh_status})")
+
+        _LOGGER.debug("Refreshed automation %s before update", self._id)
+        details = dict(refresh_response)
+        name = details.get("name", self._name) or ""
 
         # If the automation is disabled, add (Disabled) to the name, and remove it if enabled.
-        if (value is True):
-            if (self._name.endswith(" (Disabled)")):
-                self._raw_details["name"] = self._name[:-11]
-                self._name = self._name[:-11]
-        else:
-            if (not self._name.endswith(" (Disabled)")):
-                self._raw_details["name"] = self._name + " (Disabled)"
-                self._name = self._name + " (Disabled)"
+        if value is True:
+            if name.endswith(" (Disabled)"):
+                name = name[:-11]
+        elif not name.endswith(" (Disabled)"):
+            name = name + " (Disabled)"
+        details["name"] = name
+        details["enable"] = value
 
-        self._raw_details["enable"] = value
-        self._enabled = value
-        
-        response, status_code = self._uiProtectAlarms.call_uiprotect_api(UIProtectApi.UPDATE_AUTOMATION, self._id, self._raw_details)
-        if (status_code == 200 and response):
-            self.handle_server_update_base(response)
+        response, status_code = self._uiProtectAlarms.call_uiprotect_api(
+            UIProtectApi.UPDATE_AUTOMATION, self._id, details
+        )
+        if status_code != 200:
+            raise NvrError(f"Unable to update alarm {self._id} (status {status_code})")
+
+        # Only change local state once Protect accepted the change
+        self.handle_server_update_base(response if response else details)
 
     @property
     def id(self):

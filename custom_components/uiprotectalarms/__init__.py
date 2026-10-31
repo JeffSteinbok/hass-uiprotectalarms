@@ -2,6 +2,10 @@
 
 import logging
 import time
+from datetime import timedelta
+
+from homeassistant.exceptions import ConfigEntryNotReady, HomeAssistantError
+from homeassistant.helpers.event import async_track_time_interval
 
 from .haimports import *  # pylint: disable=W0401,W0614
 from .const import (
@@ -14,6 +18,9 @@ from .const import (
 )
 
 _LOGGER = logging.getLogger(LOGGER)
+
+# How often alarm states are re-read from Protect
+SYNC_INTERVAL = timedelta(minutes=5)
 
 
 async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> bool:
@@ -31,17 +38,14 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> b
     pyuiprotectalarms_manager = PyUIProtectAlarms(host, username, password)
     pyuiprotectalarms_manager.automation_rule_prefix = rule_prefix
 
-    authenticate = await hass.async_add_executor_job(pyuiprotectalarms_manager.authenticate)
+    from .pyuiprotectalarms.exceptions import UnifiProtectError  # pylint: disable=C0415
 
-    if not authenticate:
-        _LOGGER.error("Unable to login to the UIProtect server")
-        return False
-
-    load_automations = await hass.async_add_executor_job(pyuiprotectalarms_manager.load_automations)
-
-    if not load_automations:
-        _LOGGER.error("Unable to load automation list from the uiprotectalarms server")
-        return False
+    try:
+        await hass.async_add_executor_job(pyuiprotectalarms_manager.authenticate)
+        await hass.async_add_executor_job(pyuiprotectalarms_manager.load_automations)
+    except UnifiProtectError as err:
+        # HA retries the setup later instead of leaving the integration dead
+        raise ConfigEntryNotReady(f"UniFi Protect not reachable: {err}") from err
 
     _LOGGER.info("%d UIProtect automations found", len(pyuiprotectalarms_manager.automations))
 
@@ -71,13 +75,26 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> b
     async def async_refresh_automations(service: ServiceCall) -> None:
         """Refresh the automations, notifications, and users."""
         _LOGGER.debug("Refreshing automations, notifications, and users")
-        
-        await hass.async_add_executor_job(pyuiprotectalarms_manager.load_automations)
-        await hass.async_add_executor_job(pyuiprotectalarms_manager.load_users)
-        await hass.async_add_executor_job(pyuiprotectalarms_manager.load_notifications)
-    
+        try:
+            await hass.async_add_executor_job(pyuiprotectalarms_manager.load_automations)
+            await hass.async_add_executor_job(pyuiprotectalarms_manager.load_users)
+            await hass.async_add_executor_job(pyuiprotectalarms_manager.load_notifications)
+        except UnifiProtectError as err:
+            raise HomeAssistantError(f"UniFi Protect refresh failed: {err}") from err
+
     hass.services.async_register(
         DOMAIN, SERVICE_REFRESH_ALARMS, async_refresh_automations
+    )
+
+    async def _async_periodic_sync(_now) -> None:
+        """Keep HA in sync with changes made directly in Protect."""
+        try:
+            await hass.async_add_executor_job(pyuiprotectalarms_manager.load_automations)
+        except UnifiProtectError as err:
+            _LOGGER.warning("Periodic UniFi Protect alarm sync failed: %s", err)
+
+    config_entry.async_on_unload(
+        async_track_time_interval(hass, _async_periodic_sync, SYNC_INTERVAL)
     )
 
     return True

@@ -76,13 +76,10 @@ class UiprotectalarmsFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
     @callback
     def async_get_options_flow(config_entry):
         """Get the options flow for this handler."""
-        return OptionsFlowHandler(config_entry)
+        return OptionsFlowHandler()
 
 class OptionsFlowHandler(config_entries.OptionsFlow):
     """Handles options flow for the component."""
-
-    def __init__(self, config_entry: config_entries.ConfigEntry) -> None:
-        self.config_entry = config_entry
 
     async def async_step_init(self, user_input: dict[str, Any] | None = None) -> dict[str, Any]:
         """Manage the options for the custom component."""
@@ -95,12 +92,11 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
 
         rule_prefix = self.config_entry.options.get(CONF_RULE_PREFIX)
         if rule_prefix is None:
-            _LOGGER.debug("rule_prefix not set, setting it to True")
-            rule_prefix = True
+            rule_prefix = ""
 
         options_schema = vol.Schema(
             {
-                vol.Required(CONF_RULE_PREFIX, default=rule_prefix): str
+                vol.Optional(CONF_RULE_PREFIX, default=rule_prefix): str
             }
         )
         return self.async_show_form(

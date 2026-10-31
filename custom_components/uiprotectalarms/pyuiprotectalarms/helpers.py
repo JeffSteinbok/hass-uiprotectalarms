@@ -190,7 +190,9 @@ class Helpers:
                         Helpers.redactor(json.dumps(response)),
                     )
             else:
-                _LOGGER.debug("Unable to fetch %s%s", url, api)
+                # Return the real status code (e.g. 401) so callers can re-authenticate
+                status_code = response_object.status_code
+                _LOGGER.debug("Unable to fetch %s%s (status %s)", url, api, status_code)
         return response, status_code
 
     @staticmethod
