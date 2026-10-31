@@ -50,8 +50,18 @@ class PyUIProtectAutomation(PyUIProtectBaseObject):
         refresh_response, refresh_status = self._uiProtectAlarms.call_uiprotect_api(
             UIProtectApi.GET_AUTOMATIONS, self._id
         )
-        if refresh_status != 200 or not refresh_response:
-            raise NvrError(f"Unable to read alarm {self._id} before update (status {refresh_status})")
+        if refresh_status != 200 or not isinstance(refresh_response, dict):
+            # Some Protect versions have no single-alarm endpoint (404):
+            # read the full list and pick this alarm from it
+            _LOGGER.debug("Single alarm read failed (status %s), reading full list", refresh_status)
+            list_response, list_status = self._uiProtectAlarms.call_uiprotect_api(
+                UIProtectApi.GET_AUTOMATIONS
+            )
+            if list_status != 200 or not isinstance(list_response, list):
+                raise NvrError(f"Unable to read alarm {self._id} before update (status {list_status})")
+            refresh_response = next((a for a in list_response if a.get("id") == self._id), None)
+            if refresh_response is None:
+                raise NvrError(f"Alarm {self._id} no longer exists in UniFi Protect")
 
         _LOGGER.debug("Refreshed automation %s before update", self._id)
         details = dict(refresh_response)
