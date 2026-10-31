@@ -57,14 +57,8 @@ class UIProtectAlarmsBaseEntityHA(Entity):
             if hass_ref and hass_ref.loop and hass_ref.loop.is_running():
                 # Create a task in the event loop using call_soon_threadsafe
                 # We need to create the coroutine and schedule it properly
-                def schedule_update():
-                    # This function runs in the event loop thread
-                    # Use hass.async_create_task which is the proper way to schedule
-                    # async operations in Home Assistant
-                    hass_ref.async_create_task(self.async_write_ha_state())
-                
-                # Schedule the function to run in the event loop
-                hass_ref.loop.call_soon_threadsafe(schedule_update)
+                # async_write_ha_state is a plain callback, not a coroutine
+                hass_ref.loop.call_soon_threadsafe(self.async_write_ha_state)
             else:
                 # Fallback: try to schedule directly if loop is not available
                 _LOGGER.warning("Cannot schedule state update: hass or loop not available")
