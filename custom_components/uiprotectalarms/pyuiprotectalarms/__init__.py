@@ -12,7 +12,6 @@ import re
 import time
 import requests
 
-import aiohttp
 from yarl import URL
 from .constants import (
     LOGGER_NAME,
@@ -45,7 +44,7 @@ def get_user_hash(host: str, username: str) -> str:
     session.update(username.encode("utf8"))
     return session.hexdigest()
 
-def get_response_reason(response: aiohttp.ClientResponse) -> str:
+def get_response_reason(response: requests.Response) -> str:
     """Get the reason from the response."""
     return response.reason or "Unknown"
 
@@ -122,13 +121,20 @@ class PyUIProtectAlarms:
         self.base_url = str(self._url)
 
     def _raise_for_status(
-        self, response: aiohttp.ClientResponse, raise_exception: bool = True
+        self, response: requests.Response | None, raise_exception: bool = True
     ) -> None:
         """Raise an exception based on the response status."""
+        if response is None:
+            msg = "Request failed: no response received from the UniFi Protect controller"
+            if raise_exception:
+                raise NvrError(msg)
+            _LOGGER.debug(msg)
+            return
+
         url = response.url
         reason = get_response_reason(response)
         msg = "Request failed: %s - Status: %s - Reason: %s"
-        status = response.status
+        status = response.status_code
 
         if raise_exception:
             if status in {
@@ -175,6 +181,7 @@ class PyUIProtectAlarms:
                 self._update_last_token_cookie(response_obj)
                 self._is_authenticated = True
                 return response_obj.json(), response_obj.status_code
+            return response_obj, response_obj.status_code
         else:
             full_path = UIPROTECT_APIS[api][UIPROTECT_API_PATH]
             if (path is not None):
