@@ -148,7 +148,10 @@ class Helpers:
             raise exception
         else:
             if response_object.status_code != 200:
-                _LOGGER.debug("Unable to fetch %s%s", url, api)
+                _LOGGER.debug(
+                    "Unable to fetch %s%s - status=%s - body=%s",
+                    url, api, response_object.status_code, response_object.text[:500],
+                )
         return response_object
     
     @staticmethod
@@ -181,16 +184,13 @@ class Helpers:
         except requests.exceptions.RequestException as exception:
             _LOGGER.debug(exception)
         else:
-            if response_object.status_code == 200:
-                status_code = 200
-                if response_object.content:
-                    response = response_object.json()
-                    _LOGGER.debug(
-                        "API response: \n\n  %s \n ",
-                        Helpers.redactor(json.dumps(response)),
-                    )
-            else:
-                _LOGGER.debug("Unable to fetch %s%s", url, api)
+            status_code = response_object.status_code
+            if status_code == 200 and response_object.content:
+                response = response_object.json()
+                _LOGGER.debug(
+                    "API response: \n\n  %s \n ",
+                    Helpers.redactor(json.dumps(response)),
+                )
         return response, status_code
 
     @staticmethod

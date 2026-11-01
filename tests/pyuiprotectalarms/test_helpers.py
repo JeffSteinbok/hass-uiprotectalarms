@@ -1,4 +1,7 @@
 """Test helpers for PyUIProtectAlarms."""
+import logging
+from unittest.mock import MagicMock, patch
+
 from  .imports import Helpers
 
 class TestHelpers:
@@ -44,3 +47,26 @@ class TestHelpers:
 
         decoded_expired = Helpers.decode_token_cookie(expired_token)
         assert decoded_expired is None
+
+    def test_call_json_api_returns_actual_status_code_and_logs_body_on_failure(self, caplog):
+        """Test that call_json_api surfaces the real HTTP status code on failure (instead of
+        always returning 0), and that the status code and body get logged for debugging."""
+        caplog.set_level(logging.DEBUG)
+
+        mock_response = MagicMock()
+        mock_response.status_code = 400
+        mock_response.text = (
+            '{"error": "This operation is not available when global alarm manager '
+            'is enabled", "name": "BAD_REQUEST"}'
+        )
+        mock_response.content = mock_response.text.encode()
+
+        with patch("requests.get", return_value=mock_response):
+            response, status_code = Helpers.call_json_api(
+                "https://example.com", "/some/path", "get", {}, {}
+            )
+
+        assert status_code == 400
+        assert response is None
+        assert "status=400" in caplog.text
+        assert "global alarm manager" in caplog.text

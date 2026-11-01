@@ -176,6 +176,7 @@ class PyUIProtectAlarms:
                 self._is_authenticated = True
                 return response_obj.json(), response_obj.status_code
         else:
+            self.ensure_authenticated()
             full_path = UIPROTECT_APIS[api][UIPROTECT_API_PATH]
             if (path is not None):
                 full_path = f"{full_path}/{path}"
