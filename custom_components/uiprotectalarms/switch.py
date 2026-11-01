@@ -12,6 +12,7 @@ import logging
 
 from .haimports import *  # pylint: disable=W0401,W0614
 from .pyuiprotectalarms import PyUIProtectAlarms
+from .pyuiprotectalarms.exceptions import UnifiProtectError
 from .pyuiprotectalarms.pyuiprotectautomation import PyUIProtectAutomation
 from .baseentity import UIProtectAlarmsBaseEntityHA
 
@@ -126,11 +127,21 @@ class UIProtectAlarmsSwitchHA(UIProtectAlarmsBaseEntityHA, SwitchEntity):
     ) -> None:
         """Turn the device on."""
         _LOGGER.debug("Turning on %s %s", self.pyuiprotectalarms_automation.name, self.entity_description.key)
-        setattr(self.pyuiprotectalarms_automation, self.entity_description.attr_name, True)
+        try:
+            setattr(self.pyuiprotectalarms_automation, self.entity_description.attr_name, True)
+        except UnifiProtectError as error:
+            raise HomeAssistantError(
+                f"Failed to turn on {self.pyuiprotectalarms_automation.name}: {error}"
+            ) from error
 
     def turn_off(self, **kwargs: Any) -> None:
         """Turn the device off."""
         _LOGGER.debug(
             "Turning off %s %s", self.pyuiprotectalarms_automation.name, self.entity_description.key
         )
-        setattr(self.pyuiprotectalarms_automation, self.entity_description.attr_name, False)
+        try:
+            setattr(self.pyuiprotectalarms_automation, self.entity_description.attr_name, False)
+        except UnifiProtectError as error:
+            raise HomeAssistantError(
+                f"Failed to turn off {self.pyuiprotectalarms_automation.name}: {error}"
+            ) from error

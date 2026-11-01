@@ -14,6 +14,7 @@ from homeassistant.const import CONF_PASSWORD, CONF_USERNAME, CONF_HOST, Platfor
 from homeassistant import config_entries, core
 
 from homeassistant.core import HomeAssistant, ServiceCall
+from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers.dispatcher import async_dispatcher_connect, async_dispatcher_send
 
