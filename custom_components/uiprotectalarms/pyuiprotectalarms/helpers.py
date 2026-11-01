@@ -171,7 +171,8 @@ class Helpers:
             headers: Optional HTTP headers
             
         Returns:
-            Tuple of (parsed JSON response dict or None, HTTP status code)
+            Tuple of (parsed JSON response dict, or the raw response on
+            failure, or None on a connection error; HTTP status code)
         """
         response_object = None
         response = None
@@ -181,8 +182,8 @@ class Helpers:
         except requests.exceptions.RequestException as exception:
             _LOGGER.debug(exception)
         else:
-            if response_object.status_code == 200:
-                status_code = 200
+            status_code = response_object.status_code
+            if status_code == 200:
                 if response_object.content:
                     response = response_object.json()
                     _LOGGER.debug(
@@ -191,6 +192,7 @@ class Helpers:
                     )
             else:
                 _LOGGER.debug("Unable to fetch %s%s", url, api)
+                response = response_object
         return response, status_code
 
     @staticmethod
