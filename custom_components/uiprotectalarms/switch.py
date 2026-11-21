@@ -125,7 +125,7 @@ class UIProtectAlarmsSwitchHA(UIProtectAlarmsBaseEntityHA, SwitchEntity):
             setattr(self.pyuiprotectalarms_automation, self.entity_description.attr_name, value)
         except UnifiProtectError as err:
             raise HomeAssistantError(
-                f"UniFi Protect: {self.pyuiprotectalarms_automation.name} konnte nicht geschaltet werden: {err}"
+                f"UniFi Protect: could not switch {self.pyuiprotectalarms_automation.name}: {err}"
             ) from err
 
     def turn_on(

@@ -15,6 +15,7 @@ Some key notes you should be aware of...
 * This integration also doesn't automatically keep entities in sync with Unifi Protect. You'll have to manually set that up using the **Refresh** service exposed
 by this integration.
 * Will append *(Disabled)* to all Alarms it disables, so you can see in the UI Protect all.
+* The Alarm Manager in UniFi Protect must be set to **Local** mode. When it's set to **Global**, UniFi Protect rejects all alarm updates and toggling switches will fail.
 
 ## Table of Contents
 - [Installation](#installation)
