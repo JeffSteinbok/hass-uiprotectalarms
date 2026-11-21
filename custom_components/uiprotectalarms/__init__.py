@@ -14,8 +14,11 @@ from .const import (
     PYUIPROTECTALARMS_MANAGER,
     UIPROTECTALARMS_PLATFORMS,
     CONF_RULE_PREFIX,
+    CONF_NOTIFICATION_SWITCHES,
+    DEFAULT_NOTIFICATION_SWITCHES,
     SERVICE_REFRESH_ALARMS
 )
+from homeassistant.helpers import entity_registry as er
 
 _LOGGER = logging.getLogger(LOGGER)
 
@@ -49,17 +52,45 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> b
 
     _LOGGER.info("%d UIProtect automations found", len(pyuiprotectalarms_manager.automations))
 
-    # Load users first (needed for updating notifications for all users)
-    load_users = await hass.async_add_executor_job(pyuiprotectalarms_manager.load_users)
-    if load_users:
-        _LOGGER.info("%d UIProtect users found", len(pyuiprotectalarms_manager.users))
-    
-    # Load notifications (non-blocking, continue even if it fails)
-    load_notifications = await hass.async_add_executor_job(pyuiprotectalarms_manager.load_notifications)
-    if load_notifications:
-        _LOGGER.info("%d UIProtect notifications found", len(pyuiprotectalarms_manager.notifications))
+    notification_switches = config_entry.options.get(
+        CONF_NOTIFICATION_SWITCHES, DEFAULT_NOTIFICATION_SWITCHES
+    )
+
+    if notification_switches:
+        # Load users first (needed for updating notifications for all users)
+        load_users = await hass.async_add_executor_job(pyuiprotectalarms_manager.load_users)
+        if load_users:
+            _LOGGER.info("%d UIProtect users found", len(pyuiprotectalarms_manager.users))
+
+        # Load notifications (non-blocking, continue even if it fails)
+        load_notifications = await hass.async_add_executor_job(pyuiprotectalarms_manager.load_notifications)
+        if load_notifications:
+            _LOGGER.info("%d UIProtect notifications found", len(pyuiprotectalarms_manager.notifications))
+            # Only clean up when the notification list loaded completely
+            _async_remove_stale_entities(
+                hass,
+                config_entry,
+                ("-push", "-email"),
+                {
+                    f"{notification_id}-{channel}"
+                    for notification_id in pyuiprotectalarms_manager.notifications
+                    for channel in ("push", "email")
+                },
+            )
+        else:
+            _LOGGER.warning("Unable to load notifications, continuing without notification controls")
     else:
-        _LOGGER.warning("Unable to load notifications, continuing without notification controls")
+        _LOGGER.info("Push/email notification switches disabled in options")
+        _async_remove_notification_entities(hass, config_entry)
+
+    # load_automations() raises on any error, so the alarm list is complete here:
+    # remove switches of alarms that were deleted in UniFi Protect
+    _async_remove_stale_entities(
+        hass,
+        config_entry,
+        ("-Enabled",),
+        {f"{automation_id}-Enabled" for automation_id in pyuiprotectalarms_manager.automations},
+    )
 
     platforms = set()
     platforms.add(Platform.SWITCH)
@@ -77,8 +108,9 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> b
         _LOGGER.debug("Refreshing automations, notifications, and users")
         try:
             await hass.async_add_executor_job(pyuiprotectalarms_manager.load_automations)
-            await hass.async_add_executor_job(pyuiprotectalarms_manager.load_users)
-            await hass.async_add_executor_job(pyuiprotectalarms_manager.load_notifications)
+            if notification_switches:
+                await hass.async_add_executor_job(pyuiprotectalarms_manager.load_users)
+                await hass.async_add_executor_job(pyuiprotectalarms_manager.load_notifications)
         except UnifiProtectError as err:
             raise HomeAssistantError(f"UniFi Protect refresh failed: {err}") from err
 
@@ -97,7 +129,51 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> b
         async_track_time_interval(hass, _async_periodic_sync, SYNC_INTERVAL)
     )
 
+    # Apply changed options (e.g. notification switches on/off) right away
+    config_entry.async_on_unload(config_entry.add_update_listener(_async_options_updated))
+
     return True
+
+
+async def _async_options_updated(hass: HomeAssistant, config_entry: ConfigEntry) -> None:
+    """Reload the integration when its options change."""
+    await hass.config_entries.async_reload(config_entry.entry_id)
+
+
+def _async_remove_stale_entities(
+    hass: HomeAssistant,
+    config_entry: ConfigEntry,
+    suffixes: tuple[str, ...],
+    valid_unique_ids: set[str],
+) -> None:
+    """Remove switches whose alarm/notification no longer exists in Protect.
+
+    Only entries of this config entry whose unique_id ends with one of the
+    given suffixes are considered, so the two switch types never affect
+    each other.
+    """
+    registry = er.async_get(hass)
+    for entry in er.async_entries_for_config_entry(registry, config_entry.entry_id):
+        if (
+            entry.domain == "switch"
+            and entry.unique_id.endswith(suffixes)
+            and entry.unique_id not in valid_unique_ids
+        ):
+            _LOGGER.info("Removing %s, it no longer exists in UniFi Protect", entry.entity_id)
+            registry.async_remove(entry.entity_id)
+
+
+def _async_remove_notification_entities(hass: HomeAssistant, config_entry: ConfigEntry) -> None:
+    """Remove push/email switches left over from when they were enabled.
+
+    Notification switches use the unique_id "<id>-push" / "<id>-email",
+    alarm switches use "<id>-Enabled", so only notification switches match.
+    """
+    registry = er.async_get(hass)
+    for entry in er.async_entries_for_config_entry(registry, config_entry.entry_id):
+        if entry.domain == "switch" and entry.unique_id.endswith(("-push", "-email")):
+            _LOGGER.info("Removing notification switch %s", entry.entity_id)
+            registry.async_remove(entry.entity_id)
 
 async def async_unload_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> bool:
     """Unload a config entry."""

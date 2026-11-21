@@ -23,7 +23,8 @@
         "init": {
           "title": "Unifi Protect Alarms Options",
           "data": {
-            "rule_prefix": "Only show alarms with this name prefix:"
+            "rule_prefix": "Only show alarms with this name prefix:",
+            "notification_switches": "Create push/email notification switches (changing them affects all Protect users)"
           }
         }
       }

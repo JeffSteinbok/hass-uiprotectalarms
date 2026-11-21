@@ -1,0 +1,32 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Host-IP, Benutzername und Passwort für UniFi Protect",
+        "data": {
+          "host": "Host-IP (IPv4)",
+          "port": "Port (Standard 443)",
+          "username": "Benutzername",
+          "password": "Passwort"
+        }
+      }
+    },
+    "error": {
+      "invalid_auth": "Anmeldung fehlgeschlagen."
+    },
+    "abort": {
+      "single_instance_allowed": "Es ist nur eine Instanz erlaubt."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Optionen für UniFi Protect Alarme",
+        "data": {
+          "rule_prefix": "Nur Alarme importieren, deren Name so beginnt:",
+          "notification_switches": "Push-/E-Mail-Schalter anlegen (Änderungen daran gelten für alle Protect-Benutzer)"
+        }
+      }
+    }
+  }
+}
