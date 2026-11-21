@@ -154,8 +154,13 @@ class PyUIProtectAlarms:
             self.authenticate()
     
     def call_uiprotect_api(self, api: str, path:str = None, json_object: Optional[dict] = None) -> tuple[dict, int]:
-        """Call the UIProtect API. This is used for login and the initial device list and states as well
-           as device settings."""
+        """Call the UIProtect API.
+
+        For all calls except LOGIN this makes sure a valid session exists first
+        and re-authenticates once (and retries) if the console answers 401/403.
+        Without this the session expires after some time and every later call
+        fails silently.
+        """
         _LOGGER.debug("Calling UIProtect API: {%s}", api)
         _LOGGER.debug("Calling UIProtect API - path={%s}", path)
 
@@ -175,29 +180,41 @@ class PyUIProtectAlarms:
                 self._update_last_token_cookie(response_obj)
                 self._is_authenticated = True
                 return response_obj.json(), response_obj.status_code
-        else:
-            full_path = UIPROTECT_APIS[api][UIPROTECT_API_PATH]
-            if (path is not None):
-                full_path = f"{full_path}/{path}"
-                _LOGGER.debug("call_uiprotect_api: full_path={%s}", full_path)
+            return None, response_obj.status_code
 
-            return Helpers.call_json_api(
+        full_path = UIPROTECT_APIS[api][UIPROTECT_API_PATH]
+        if (path is not None):
+            full_path = f"{full_path}/{path}"
+            _LOGGER.debug("call_uiprotect_api: full_path={%s}", full_path)
+
+        for attempt in range(2):
+            if attempt == 1 or not self.is_authenticated():
+                if attempt == 1:
+                    _LOGGER.info("UIProtect session rejected, re-authenticating")
+                self._is_authenticated = False
+                self.authenticate()
+
+            response, status_code = Helpers.call_json_api(
                 self.base_url,
                 full_path,
                 UIPROTECT_APIS[api][UIPROTECT_API_METHOD],
                 json_object,
                 {"Cookie": f"{self._cookiename}={self._last_token_cookie}",
                  "X-CSRF-Token": self._last_csrf_token},
-        )
+            )
+            if status_code not in (HTTPStatus.UNAUTHORIZED.value, HTTPStatus.FORBIDDEN.value):
+                return response, status_code
+
+        return response, status_code
 
 
     def authenticate(self) -> bool:
         """Authenticate and get a token."""
         if self._auth_lock.locked():
             # If an auth is already in progress
-            # do not start another one
+            # wait for it instead of starting another one
             with self._auth_lock:
-                return
+                return self._is_authenticated
 
         with self._auth_lock:
             auth = {
@@ -206,12 +223,16 @@ class PyUIProtectAlarms:
                 "rememberMe": True,
             }
 
-            response, status_code  = self.call_uiprotect_api(UIProtectApi.LOGIN, json_object=auth)
+            _response, status_code = self.call_uiprotect_api(UIProtectApi.LOGIN, json_object=auth)
             if status_code == 200:
                 self._is_authenticated = True
                 _LOGGER.debug("Authenticated successfully!")
+            elif status_code in (HTTPStatus.UNAUTHORIZED.value, HTTPStatus.FORBIDDEN.value):
+                self._is_authenticated = False
+                raise NotAuthorized(f"Login to {self.base_url} rejected (status {status_code})")
             else:
-                self._raise_for_status(response, True)
+                self._is_authenticated = False
+                raise NvrError(f"Login to {self.base_url} failed (status {status_code})")
 
         return self._is_authenticated
             
@@ -220,8 +241,8 @@ class PyUIProtectAlarms:
         _LOGGER.debug("PyUIProtectAlarms: load_automations")
 
         response, status_code  = self.call_uiprotect_api(UIProtectApi.GET_AUTOMATIONS)
-        if status_code != 200:  
-            self._raise_for_status(response, True)
+        if status_code != 200 or not isinstance(response, list):
+            raise NvrError(f"Unable to load automations (status {status_code})")
 
 
         for automation_details in response:
@@ -374,11 +395,10 @@ class PyUIProtectAlarms:
         if (csrf_token is not None):
             self._last_csrf_token = csrf_token
 
-        if (
-            token_cookie := response.cookies.get(self._cookiename)
-        ) and token_cookie != self._last_token_cookie:
+        if token_cookie := response.cookies.get(self._cookiename):
             self._last_token_cookie = token_cookie
-            self._last_token_cookie_decode = None
+        # Always re-decode after a login so a stale expiry is never reused
+        self._last_token_cookie_decode = None
 
 
     def is_authenticated(self) -> bool:
