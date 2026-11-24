@@ -349,7 +349,7 @@ class PyUIProtectAlarms:
         # Group automations by notification type
         notification_types = {}
         
-        for automation in self._automations.values():
+        for automation in list(self._automations.values()):
             if not hasattr(automation, 'raw_details') or not automation.raw_details:
                 _LOGGER.debug("Automation %s has no raw_details, skipping", automation.name)
                 continue
