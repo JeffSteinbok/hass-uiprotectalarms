@@ -2,9 +2,11 @@
 # pylint: disable=protected-access
 import asyncio
 import json
+from types import MappingProxyType
 from unittest.mock import MagicMock
 
 from homeassistant.components.diagnostics import REDACTED
+from homeassistant.config_entries import ConfigEntry
 
 from custom_components.uiprotectalarms.const import DOMAIN, PYUIPROTECTALARMS_MANAGER
 from custom_components.uiprotectalarms.diagnostics import (
@@ -22,18 +24,51 @@ FAKE_USERNAME = "fake-diag-user"
 FAKE_PASSWORD = "fake-diag-password"
 FAKE_COOKIE = "fake-diag-cookie"
 FAKE_CSRF = "fake-diag-csrf"
+FAKE_WEBHOOK_URL = "https://ha.invalid/api/webhook/fake-webhook-id"
+FAKE_AUTHORIZATION = "Bearer fake-diag-authorization"
+FAKE_API_KEY = "fake-diag-api-key"
+FAKE_TARGET = "fake-diag-target-value"
+
+# An alarm that also calls a webhook. Protect's exact field names for this are
+# not documented, so the action uses a mix of names the redaction must catch.
+WEBHOOK_ALARM = {
+    "id": "alarm-webhook",
+    "name": "Webhook Alarm",
+    "enable": True,
+    "actions": [
+        {
+            "type": "SEND_NOTIFICATION",
+            "metadata": {"receivers": [{"user": "fake-receiver-id", "channels": ["push"]}]},
+        },
+        {
+            "type": "WEBHOOK",
+            "metadata": {
+                "url": FAKE_WEBHOOK_URL,
+                "method": "POST",
+                "headers": {"Authorization": FAKE_AUTHORIZATION, "X-Api-Key": FAKE_API_KEY},
+                "target": FAKE_TARGET,
+            },
+        },
+        {"type": "HTTP_REQUEST", "Metadata": {"URL": FAKE_WEBHOOK_URL}},
+    ],
+    "Webhook": {"Url": FAKE_WEBHOOK_URL, "X-API-KEY": FAKE_API_KEY},
+}
 
 
 def _config_entry():
-    entry = MagicMock()
-    entry.as_dict.return_value = {
-        "entry_id": "test_entry_id",
-        "domain": DOMAIN,
-        "title": FAKE_HOST,
-        "data": {"host": FAKE_HOST, "username": FAKE_USERNAME, "password": FAKE_PASSWORD},
-        "options": {"rule_prefix": None, "notification_switches": True},
-    }
-    return entry
+    """A real ConfigEntry, so as_dict() has its real shape."""
+    return ConfigEntry(
+        data={"host": FAKE_HOST, "username": FAKE_USERNAME, "password": FAKE_PASSWORD},
+        discovery_keys=MappingProxyType({}),
+        domain=DOMAIN,
+        minor_version=1,
+        options={"rule_prefix": None, "notification_switches": True},
+        source="user",
+        subentries_data=None,
+        title=FAKE_HOST,
+        unique_id=None,
+        version=1,
+    )
 
 
 def _hass(manager):
@@ -122,3 +157,29 @@ class TestDiagnostics(IntegrationTestBase):
             {"id": "alarm-1", "name": "Front Door", "enabled": True,
              "raw_details": {"id": "alarm-1", "userId": REDACTED}}
         ]
+
+    def test_diagnostics_redacts_webhook_actions(self):
+        """URLs and credentials in non-notification actions never leave the system."""
+        alarm = MagicMock(id="alarm-webhook", enabled=True, raw_details=WEBHOOK_ALARM)
+        alarm.name = "Webhook Alarm"
+        manager = MagicMock(
+            automations={"alarm-webhook": alarm}, notifications={}, users=[], automation_rule_prefix=None
+        )
+
+        result = self._diagnostics(manager)
+        text = json.dumps(result)
+
+        for secret in (FAKE_WEBHOOK_URL, "fake-webhook-id", FAKE_AUTHORIZATION, FAKE_API_KEY,
+                       FAKE_TARGET, "fake-receiver-id"):
+            assert secret not in text, f"leaked into diagnostics: {secret!r}"
+        details = result[DOMAIN]["alarms"][0]["raw_details"]
+        notification, webhook, http_request = details["actions"]
+        # Notification settings stay readable, minus the user ids
+        assert notification["metadata"]["receivers"] == [{"user": REDACTED, "channels": ["push"]}]
+        # Other actions keep only their type
+        assert webhook == {"type": "WEBHOOK", "metadata": REDACTED}
+        assert http_request == {"type": "HTTP_REQUEST", "metadata": REDACTED}
+        # Key matching is case-insensitive, outside of actions as well
+        assert details["Webhook"] == REDACTED
+        # The live alarm data is untouched
+        assert WEBHOOK_ALARM["actions"][1]["metadata"]["url"] == FAKE_WEBHOOK_URL
