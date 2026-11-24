@@ -16,7 +16,8 @@ from .const import (
     CONF_RULE_PREFIX,
     CONF_NOTIFICATION_SWITCHES,
     DEFAULT_NOTIFICATION_SWITCHES,
-    SERVICE_REFRESH_ALARMS
+    SERVICE_REFRESH_ALARMS,
+    SIGNAL_ALARMS_UPDATED,
 )
 from homeassistant.helpers import entity_registry as er
 
@@ -85,12 +86,7 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> b
 
     # load_automations() raises on any error, so the alarm list is complete here:
     # remove switches of alarms that were deleted in UniFi Protect
-    _async_remove_stale_entities(
-        hass,
-        config_entry,
-        ("-Enabled",),
-        {f"{automation_id}-Enabled" for automation_id in pyuiprotectalarms_manager.automations},
-    )
+    _async_remove_stale_alarm_entities(hass, config_entry, pyuiprotectalarms_manager)
 
     platforms = set()
     platforms.add(Platform.SWITCH)
@@ -108,6 +104,7 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> b
         _LOGGER.debug("Refreshing automations, notifications, and users")
         try:
             await hass.async_add_executor_job(pyuiprotectalarms_manager.load_automations)
+            _async_alarms_updated(hass, config_entry, pyuiprotectalarms_manager)
             if notification_switches:
                 await hass.async_add_executor_job(pyuiprotectalarms_manager.load_users)
                 await hass.async_add_executor_job(pyuiprotectalarms_manager.load_notifications)
@@ -124,6 +121,8 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> b
             await hass.async_add_executor_job(pyuiprotectalarms_manager.load_automations)
         except UnifiProtectError as err:
             _LOGGER.warning("Periodic UniFi Protect alarm sync failed: %s", err)
+            return
+        _async_alarms_updated(hass, config_entry, pyuiprotectalarms_manager)
 
     config_entry.async_on_unload(
         async_track_time_interval(hass, _async_periodic_sync, SYNC_INTERVAL)
@@ -138,6 +137,31 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> b
 async def _async_options_updated(hass: HomeAssistant, config_entry: ConfigEntry) -> None:
     """Reload the integration when its options change."""
     await hass.config_entries.async_reload(config_entry.entry_id)
+
+
+def _async_remove_stale_alarm_entities(
+    hass: HomeAssistant, config_entry: ConfigEntry, pyuiprotectalarms_manager
+) -> None:
+    """Remove alarm switches whose alarm is no longer in the loaded alarm list."""
+    _async_remove_stale_entities(
+        hass,
+        config_entry,
+        ("-Enabled",),
+        {f"{automation_id}-Enabled" for automation_id in pyuiprotectalarms_manager.automations.copy()},
+    )
+
+
+def _async_alarms_updated(
+    hass: HomeAssistant, config_entry: ConfigEntry, pyuiprotectalarms_manager
+) -> None:
+    """Sync the alarm switches after the alarm list was re-read from Protect.
+
+    Only call this after load_automations() succeeded, so the list is complete.
+    Switches of deleted alarms are removed here; the switch platform listens
+    for the signal and adds switches for alarms created since the last load.
+    """
+    _async_remove_stale_alarm_entities(hass, config_entry, pyuiprotectalarms_manager)
+    async_dispatcher_send(hass, SIGNAL_ALARMS_UPDATED.format(config_entry.entry_id))
 
 
 def _async_remove_stale_entities(

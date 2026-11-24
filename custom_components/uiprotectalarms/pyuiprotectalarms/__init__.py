@@ -70,6 +70,8 @@ class PyUIProtectAlarms:
         password: str,
     ) -> None:
         self._auth_lock = threading.Lock()
+        # The periodic sync and the refresh action can load in parallel
+        self._automations_lock = threading.Lock()
         self._host = host
         self._port = 443
 
@@ -244,9 +246,26 @@ class PyUIProtectAlarms:
         if status_code != 200 or not isinstance(response, list):
             raise NvrError(f"Unable to load automations (status {status_code})")
 
+        with self._automations_lock:
+            self._update_automations(response)
 
+        return True
+
+    def _update_automations(self, response: list) -> None:
+        """Apply a complete alarm list. Call with _automations_lock held."""
+        if not response and self._automations:
+            # Far more likely a Protect glitch than every alarm being deleted:
+            # don't drop the alarms (and with them their switches)
+            _LOGGER.warning(
+                "UniFi Protect returned no alarms, keeping the %d known alarm(s)",
+                len(self._automations),
+            )
+            return
+
+        seen_ids : set[str] = set()
         for automation_details in response:
             automation_id : str = automation_details.get("id")
+            seen_ids.add(automation_id)
             automation_obj : PyUIProtectAutomation = self._automations.get(automation_id) or None
             _LOGGER.debug("PyUIProtectAlarms: load_automations: automation_id=%s, automation_obj=%s", automation_id, automation_obj)
             if (automation_obj is None):
@@ -258,9 +277,10 @@ class PyUIProtectAlarms:
             else:
                 automation_obj.handle_server_update_base(automation_details)
 
-
-
-        return True
+        # The list is complete here: forget alarms that were deleted in Protect
+        for automation_id in [a for a in list(self._automations) if a not in seen_ids]:
+            _LOGGER.debug("PyUIProtectAlarms: load_automations: %s was removed", automation_id)
+            del self._automations[automation_id]
 
 
     def load_users(self) -> bool:
@@ -329,7 +349,7 @@ class PyUIProtectAlarms:
         # Group automations by notification type
         notification_types = {}
         
-        for automation in self._automations.values():
+        for automation in list(self._automations.values()):
             if not hasattr(automation, 'raw_details') or not automation.raw_details:
                 _LOGGER.debug("Automation %s has no raw_details, skipping", automation.name)
                 continue
