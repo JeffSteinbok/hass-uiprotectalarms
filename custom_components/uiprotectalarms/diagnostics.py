@@ -5,9 +5,9 @@
 
 from __future__ import annotations
 
-import logging
-
 from typing import Any
+
+from homeassistant.components.diagnostics import async_redact_data
 
 from .pyuiprotectalarms import PyUIProtectAlarms
 from .haimports import * # pylint: disable=W0401,W0614
@@ -16,58 +16,75 @@ from .const import (
     PYUIPROTECTALARMS_MANAGER
 )
 
-KEYS_TO_REDACT = {
-    "sn",
-    "_sn",
-    "wifi_ssid",
-    "module_hardware_mac",
+# Keys whose values must never end up in a diagnostics download:
+# credentials and the console address from the config entry, session data,
+# and anything identifying a person or device in the alarm payloads.
+TO_REDACT = {
+    CONF_HOST,
+    CONF_PASSWORD,
+    CONF_USERNAME,
+    # The config entry is titled with the console host name
+    "title",
     "password",
-    "_password",
     "username",
-    "_username",
     "token",
-    "_token",
-    "productId"
+    "accessToken",
+    "csrfToken",
+    "authorization",
+    "cookie",
+    "email",
+    "user",
+    "userId",
+    "users",
+    "device",
+    "mac",
+    "sn",
+    "productId",
 }
-
-_LOGGER = logging.getLogger(__name__)
 
 
 async def async_get_config_entry_diagnostics(
     hass: HomeAssistant, entry: ConfigEntry
 ) -> dict[str, Any]:
     """Return diagnostics for a config entry."""
-    pyuiprotectalarms_manager: PyUIProtectAlarms = hass.data[DOMAIN][PYUIPROTECTALARMS_MANAGER]
+    manager: PyUIProtectAlarms | None = hass.data.get(DOMAIN, {}).get(PYUIPROTECTALARMS_MANAGER)
 
-    return _get_diagnostics(pyuiprotectalarms_manager)
-
-def _get_diagnostics(pyuiprotectalarms_manager: PyUIProtectAlarms) -> dict[str, Any]:
-    data = {
-        DOMAIN: {
-            "device_count": len(pyuiprotectalarms_manager.devices),
-            "raw_devicelist": _redact_values(pyuiprotectalarms_manager.raw_response),
-        },
-        "devices": [_redact_values(device.__dict__) for device in pyuiprotectalarms_manager.devices],
+    return {
+        "entry": async_redact_data(entry.as_dict(), TO_REDACT),
+        DOMAIN: _get_diagnostics(manager) if manager is not None else None,
     }
 
-    return data
 
-def _redact_values(data: dict) -> dict:
-    """Rebuild and redact values of a dictionary, recursively"""
+def _get_diagnostics(manager: PyUIProtectAlarms) -> dict[str, Any]:
+    """Describe the alarms and notification settings the manager knows about."""
+    # Copy first: the alarm list can be replaced by a refresh in another thread
+    alarms = list(manager.automations.values())
+    notifications = list(manager.notifications.values())
 
-    new_data = {}
-
-    for key, item in data.items():
-        if key not in KEYS_TO_REDACT:
-            if isinstance(item, dict):
-                new_data[key] = _redact_values(item)
-            elif isinstance(item, list):
-                for listitem in item:
-                    if isinstance(listitem, dict):
-                        new_data[key] = [_redact_values(listitem)]
-            else:
-                new_data[key] = item
-        else:
-            new_data[key] = REDACTED
-
-    return new_data
+    return async_redact_data(
+        {
+            "automation_rule_prefix": manager.automation_rule_prefix,
+            "alarm_count": len(alarms),
+            "alarms": [
+                {
+                    "id": alarm.id,
+                    "name": alarm.name,
+                    "enabled": alarm.enabled,
+                    "raw_details": alarm.raw_details,
+                }
+                for alarm in alarms
+            ],
+            "notification_count": len(notifications),
+            "notifications": [
+                {
+                    "id": notification.id,
+                    "name": notification.name,
+                    "push_enabled": notification.push_enabled,
+                    "email_enabled": notification.email_enabled,
+                }
+                for notification in notifications
+            ],
+            "user_count": len(manager.users),
+        },
+        TO_REDACT,
+    )
