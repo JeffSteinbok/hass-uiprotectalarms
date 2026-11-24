@@ -33,44 +33,76 @@ class Helpers:
     and decoding authentication tokens.
     """
     
-    # Flag to enable/disable redaction of sensitive information in logs
+    # Flag to also redact personal details (email, username, ids) in logs.
+    # Credentials (cookies, CSRF/auth tokens, passwords) are always redacted,
+    # whatever this flag says.
     shouldredact = False
+
+    REDACTED = "##_REDACTED_##"
+
+    # Header names, or field names in a JSON body, that carry credentials.
+    # Matched case-insensitively anywhere in the name, so "Cookie",
+    # "Set-Cookie", "X-CSRF-Token", "Authorization", "csrfToken" and
+    # "accessToken" all match.
+    _SECRET_KEY_RE = re.compile(
+        r"token|password|passwd|secret|cookie|csrf|authorization|authkey|api[_-]?key|^tk$",
+        re.IGNORECASE,
+    )
+
+    # Personal details, only redacted when shouldredact is enabled.
+    _PERSONAL_KEYS = frozenset(("email", "username", "accountid", "uuid", "cid"))
+
+    # A "key": "string value" pair inside a JSON string.
+    _JSON_STRING_FIELD_RE = re.compile(r'"((?:[^"\\]|\\.)*)"(\s*:\s*)"((?:[^"\\]|\\.)*)"')
+
+    @classmethod
+    def _should_redact_key(cls, key) -> bool:
+        """Return True if the value stored under this key must not be logged."""
+        if not isinstance(key, str):
+            return False
+        if cls._SECRET_KEY_RE.search(key):
+            return True
+        return cls.shouldredact and key.lower() in cls._PERSONAL_KEYS
+
+    @classmethod
+    def redact_data(cls, data):
+        """Return a copy of request headers or a JSON body that is safe to log.
+
+        Values under credential keys are always replaced with '##_REDACTED_##',
+        personal details only when shouldredact is enabled. Nested dicts and
+        lists are handled; the input is not modified.
+        """
+        if isinstance(data, dict):
+            return {
+                key: cls.REDACTED if cls._should_redact_key(key) else cls.redact_data(value)
+                for key, value in data.items()
+            }
+        if isinstance(data, (list, tuple)):
+            return [cls.redact_data(item) for item in data]
+        return data
 
     @classmethod
     def redactor(cls, stringvalue: str) -> str:
-        """Redact sensitive information from strings for safe logging.
-        
-        Replaces sensitive fields (tokens, passwords, emails, etc.) with '##_REDACTED_##'
-        when shouldredact is enabled.
-        
+        """Redact sensitive information from a JSON string for safe logging.
+
+        String values of credential fields are always replaced with
+        '##_REDACTED_##'; personal details (email, username, ids) only when
+        shouldredact is enabled. Prefer redact_data() on the object before
+        serializing it, which also catches non-string values.
+
         Args:
             stringvalue: The string containing potentially sensitive information
-            
+
         Returns:
-            The string with sensitive values redacted if shouldredact is True
+            The string with sensitive values redacted
         """
-        if cls.shouldredact:
-            stringvalue = re.sub(
-                r"".join(
-                    (
-                        "(?i)",
-                        '((?<=token": ")|',
-                        '(?<=password": ")|',
-                        '(?<=email": ")|',
-                        '(?<=username": ")|',
-                        '(?<=tk": ")|',
-                        '(?<=accountId": ")|',
-                        '(?<=authKey": ")|',
-                        '(?<=uuid": ")|',
-                        '(?<=cid": ")|',
-                        '(?<=authorization": "))',
-                        '[^"]+',
-                    )
-                ),
-                "##_REDACTED_##",
-                stringvalue,
-            )
-        return stringvalue
+
+        def _replace(match: re.Match) -> str:
+            if cls._should_redact_key(match.group(1)):
+                return f'"{match.group(1)}"{match.group(2)}"{cls.REDACTED}"'
+            return match.group(0)
+
+        return cls._JSON_STRING_FIELD_RE.sub(_replace, stringvalue)
 
     @staticmethod
     def call_api(
@@ -103,12 +135,10 @@ class Helpers:
             _LOGGER.debug("[%s] calling '%s' api", method, api)
             _LOGGER.debug("API call URL: \n  %s%s", url, api)
             _LOGGER.debug(
-                "API call headers: \n  %s", Helpers.redactor(
-                    json.dumps(headers))
+                "API call headers: \n  %s", json.dumps(Helpers.redact_data(headers))
             )
             _LOGGER.debug(
-                "API call json: \n  %s", Helpers.redactor(
-                    json.dumps(json_object))
+                "API call json: \n  %s", json.dumps(Helpers.redact_data(json_object))
             )
             if method.lower() == "get":
                 response_object = requests.get(
@@ -187,7 +217,7 @@ class Helpers:
                     response = response_object.json()
                     _LOGGER.debug(
                         "API response: \n\n  %s \n ",
-                        Helpers.redactor(json.dumps(response)),
+                        json.dumps(Helpers.redact_data(response)),
                     )
             else:
                 # Return the real status code (e.g. 401) so callers can re-authenticate
