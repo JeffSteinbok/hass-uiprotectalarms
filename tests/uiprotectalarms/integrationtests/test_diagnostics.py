@@ -183,3 +183,77 @@ class TestDiagnostics(IntegrationTestBase):
         assert details["Webhook"] == REDACTED
         # The live alarm data is untouched
         assert WEBHOOK_ALARM["actions"][1]["metadata"]["url"] == FAKE_WEBHOOK_URL
+
+    def test_diagnostics_keeps_only_known_notification_settings(self):
+        """Unknown fields of a notification action are redacted, whatever their key."""
+        notification_alarm = {
+            "id": "alarm-notify",
+            "actions": [
+                {
+                    "type": "SEND_NOTIFICATION",
+                    "endpoint": FAKE_TARGET,
+                    "metadata": {
+                        "receivers": [
+                            {
+                                "user": "fake-receiver-id",
+                                "channels": ["push", "email"],
+                                "schedules": [],
+                                "link": FAKE_WEBHOOK_URL,
+                            },
+                            "fake-receiver-string",
+                        ],
+                        "destination": FAKE_TARGET,
+                    },
+                },
+            ],
+        }
+        alarm = MagicMock(id="alarm-notify", enabled=True, raw_details=notification_alarm)
+        alarm.name = "Notify Alarm"
+        manager = MagicMock(
+            automations={"alarm-notify": alarm}, notifications={}, users=[], automation_rule_prefix=None
+        )
+
+        result = self._diagnostics(manager)
+        text = json.dumps(result)
+
+        for secret in (FAKE_TARGET, FAKE_WEBHOOK_URL, "fake-receiver-id", "fake-receiver-string"):
+            assert secret not in text, f"leaked into diagnostics: {secret!r}"
+        assert result[DOMAIN]["alarms"][0]["raw_details"]["actions"] == [
+            {
+                "type": "SEND_NOTIFICATION",
+                "endpoint": REDACTED,
+                "metadata": {
+                    "receivers": [
+                        {"user": REDACTED, "channels": ["push", "email"], "schedules": [],
+                         "link": REDACTED},
+                        REDACTED,
+                    ],
+                    "destination": REDACTED,
+                },
+            }
+        ]
+
+    def test_diagnostics_redacts_network_and_device_ids(self):
+        """IP addresses and device ids are redacted wherever they appear."""
+        raw_details = {
+            "id": "alarm-net",
+            "sources": [{"deviceId": "fake-device-id", "type": "camera"}],
+            "conditions": [{"condition": {"devices": ["fake-device-1", "fake-device-2"]}}],
+            "network": {"IPv4": "fake-ipv4-value", "ipv6": "fake-ipv6-value", "DeviceID": "fake-device-3"},
+        }
+        alarm = MagicMock(id="alarm-net", enabled=False, raw_details=raw_details)
+        alarm.name = "Network Alarm"
+        manager = MagicMock(
+            automations={"alarm-net": alarm}, notifications={}, users=[], automation_rule_prefix=None
+        )
+
+        result = self._diagnostics(manager)
+        text = json.dumps(result)
+
+        for secret in ("fake-device-id", "fake-device-1", "fake-device-2", "fake-device-3",
+                       "fake-ipv4-value", "fake-ipv6-value"):
+            assert secret not in text, f"leaked into diagnostics: {secret!r}"
+        details = result[DOMAIN]["alarms"][0]["raw_details"]
+        assert details["sources"] == [{"deviceId": REDACTED, "type": "camera"}]
+        assert details["conditions"] == [{"condition": {"devices": REDACTED}}]
+        assert details["network"] == {"IPv4": REDACTED, "ipv6": REDACTED, "DeviceID": REDACTED}
