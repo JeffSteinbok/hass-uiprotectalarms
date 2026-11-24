@@ -147,7 +147,7 @@ def _async_remove_stale_alarm_entities(
         hass,
         config_entry,
         ("-Enabled",),
-        {f"{automation_id}-Enabled" for automation_id in pyuiprotectalarms_manager.automations},
+        {f"{automation_id}-Enabled" for automation_id in pyuiprotectalarms_manager.automations.copy()},
     )
 
 

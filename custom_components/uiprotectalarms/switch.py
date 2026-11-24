@@ -103,13 +103,14 @@ async def async_setup_entry(
     @callback
     def _async_add_new_alarm_switches() -> None:
         """Add switches for alarms that were created since the last load."""
-        current_ids = set(pyuiprotectalarms_manager.automations)
+        # Snapshot (dict.copy() is atomic): a load may run in an executor thread
+        automations = pyuiprotectalarms_manager.automations.copy()
         # Forget deleted alarms, their switches are removed from the registry
-        known_automation_ids.intersection_update(current_ids)
+        known_automation_ids.intersection_update(automations)
 
         new_automations = {
             automation_id: automation
-            for automation_id, automation in pyuiprotectalarms_manager.automations.items()
+            for automation_id, automation in automations.items()
             if automation_id not in known_automation_ids
         }
         if not new_automations:

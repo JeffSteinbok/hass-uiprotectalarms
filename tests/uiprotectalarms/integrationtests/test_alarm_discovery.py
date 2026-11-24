@@ -3,8 +3,12 @@
 import asyncio
 import logging
 from types import SimpleNamespace
-from unittest.mock import MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock, patch
 
+import pytest
+from homeassistant.exceptions import HomeAssistantError
+
+import custom_components.uiprotectalarms as integration
 from custom_components.uiprotectalarms import _async_alarms_updated
 from custom_components.uiprotectalarms import switch as switch_platform
 from custom_components.uiprotectalarms.const import (
@@ -164,3 +168,83 @@ class TestAlarmDiscovery(IntegrationTestBase):
         assert calls[-1][0] == UIProtectApi.UPDATE_AUTOMATION
         assert calls[-1][2]["enable"] is True
         assert automation.enabled is True
+
+    def test_empty_alarm_list_keeps_known_alarms(self):
+        """An empty list from Protect does not remove alarms or their switches."""
+        self.api_response_file_name = "automations_1.json"
+        self.manager.load_automations()
+        before = dict(self.manager.automations)
+
+        with patch.object(self.manager, "call_uiprotect_api", return_value=([], 200)):
+            assert self.manager.load_automations() is True
+
+        assert self.manager.automations == before
+        assert "UniFi Protect returned no alarms, keeping the 33 known alarm(s)" in self.caplog.text
+
+        registry_entries = [
+            SimpleNamespace(domain="switch", unique_id=f"{automation_id}-Enabled",
+                            entity_id=f"switch.alarm_{automation_id}")
+            for automation_id in before
+        ]
+        registry = MagicMock()
+        with patch("custom_components.uiprotectalarms.er.async_get", return_value=registry), \
+             patch("custom_components.uiprotectalarms.er.async_entries_for_config_entry",
+                   return_value=registry_entries), \
+             patch("custom_components.uiprotectalarms.async_dispatcher_send"):
+            _async_alarms_updated(MagicMock(), _config_entry(), self.manager)
+
+        registry.async_remove.assert_not_called()
+
+    def _setup_integration(self):
+        """Run the integration's async_setup_entry against self.manager.
+
+        Returns the refresh service handler and the periodic sync callback.
+        """
+        self.api_response_file_name = "automations_1.json"
+
+        async def run_in_executor(func, *args):
+            return func(*args)
+
+        hass = MagicMock()
+        hass.async_add_executor_job = AsyncMock(side_effect=run_in_executor)
+        hass.config_entries.async_forward_entry_setups = AsyncMock()
+        config_entry = _config_entry()
+        config_entry.data = {}
+
+        with patch(f"{integration.__name__}.pyuiprotectalarms.PyUIProtectAlarms",
+                   return_value=self.manager), \
+             patch.object(self.manager, "authenticate", return_value=True), \
+             patch(f"{integration.__name__}.er.async_get"), \
+             patch(f"{integration.__name__}.er.async_entries_for_config_entry", return_value=[]), \
+             patch(f"{integration.__name__}.async_track_time_interval") as track:
+            assert asyncio.run(integration.async_setup_entry(hass, config_entry)) is True
+
+        refresh_service = hass.services.async_register.call_args.args[2]
+        periodic_sync = track.call_args.args[1]
+        return refresh_service, periodic_sync
+
+    def test_successful_sync_and_refresh_update_alarm_switches(self):
+        """Both the periodic sync and the refresh action sync the alarm switches."""
+        refresh_service, periodic_sync = self._setup_integration()
+
+        with patch(f"{integration.__name__}._async_alarms_updated") as alarms_updated:
+            asyncio.run(periodic_sync(None))
+            asyncio.run(refresh_service(MagicMock()))
+
+        assert alarms_updated.call_count == 2
+
+    def test_failed_sync_and_refresh_skip_alarm_switch_update(self):
+        """A failed load never adds or removes alarm switches."""
+        refresh_service, periodic_sync = self._setup_integration()
+        known = dict(self.manager.automations)
+        # No fixture: the mocked API returns a dict, so load_automations raises NvrError
+        self.api_response_file_name = None
+
+        with patch(f"{integration.__name__}._async_alarms_updated") as alarms_updated:
+            asyncio.run(periodic_sync(None))
+            with pytest.raises(HomeAssistantError):
+                asyncio.run(refresh_service(MagicMock()))
+
+        alarms_updated.assert_not_called()
+        assert "Periodic UniFi Protect alarm sync failed" in self.caplog.text
+        assert self.manager.automations == known
