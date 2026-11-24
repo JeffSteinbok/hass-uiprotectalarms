@@ -23,6 +23,7 @@ from .const import (
     PYUIPROTECTALARMS_MANAGER,
     CONF_NOTIFICATION_SWITCHES,
     DEFAULT_NOTIFICATION_SWITCHES,
+    SIGNAL_ALARMS_UPDATED,
 )
 
 _LOGGER = logging.getLogger(LOGGER)
@@ -94,6 +95,37 @@ async def async_setup_entry(
         _LOGGER.info("Added %d notification switches", len(notification_switches))
 
     async_add_entities(switch_entities_ha)
+
+    # Alarms that already have a switch. Alarms created in Protect later are
+    # picked up when the alarm list is re-read (periodic sync / refresh action).
+    known_automation_ids: set[str] = set(pyuiprotectalarms_manager.automations)
+
+    @callback
+    def _async_add_new_alarm_switches() -> None:
+        """Add switches for alarms that were created since the last load."""
+        current_ids = set(pyuiprotectalarms_manager.automations)
+        # Forget deleted alarms, their switches are removed from the registry
+        known_automation_ids.intersection_update(current_ids)
+
+        new_automations = {
+            automation_id: automation
+            for automation_id, automation in pyuiprotectalarms_manager.automations.items()
+            if automation_id not in known_automation_ids
+        }
+        if not new_automations:
+            return
+
+        _LOGGER.info("Adding switches for %d new alarm(s)", len(new_automations))
+        known_automation_ids.update(new_automations)
+        async_add_entities(get_entries(new_automations))
+
+    config_entry.async_on_unload(
+        async_dispatcher_connect(
+            hass,
+            SIGNAL_ALARMS_UPDATED.format(config_entry.entry_id),
+            _async_add_new_alarm_switches,
+        )
+    )
 
 class UIProtectAlarmsSwitchHA(UIProtectAlarmsBaseEntityHA, SwitchEntity):
 

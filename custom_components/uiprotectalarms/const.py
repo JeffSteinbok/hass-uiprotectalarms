@@ -13,3 +13,7 @@ CONF_NOTIFICATION_SWITCHES = "notification_switches"
 DEFAULT_NOTIFICATION_SWITCHES = True
 
 SERVICE_REFRESH_ALARMS = "refresh_alarms"
+
+# Dispatcher signal sent after the alarm list was re-read from Protect.
+# Formatted with the config entry id.
+SIGNAL_ALARMS_UPDATED = "uiprotectalarms_alarms_updated_{}"

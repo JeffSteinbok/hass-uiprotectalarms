@@ -245,8 +245,10 @@ class PyUIProtectAlarms:
             raise NvrError(f"Unable to load automations (status {status_code})")
 
 
+        seen_ids : set[str] = set()
         for automation_details in response:
             automation_id : str = automation_details.get("id")
+            seen_ids.add(automation_id)
             automation_obj : PyUIProtectAutomation = self._automations.get(automation_id) or None
             _LOGGER.debug("PyUIProtectAlarms: load_automations: automation_id=%s, automation_obj=%s", automation_id, automation_obj)
             if (automation_obj is None):
@@ -258,7 +260,10 @@ class PyUIProtectAlarms:
             else:
                 automation_obj.handle_server_update_base(automation_details)
 
-
+        # The list is complete here: forget alarms that were deleted in Protect
+        for automation_id in [a for a in self._automations if a not in seen_ids]:
+            _LOGGER.debug("PyUIProtectAlarms: load_automations: %s was removed", automation_id)
+            del self._automations[automation_id]
 
         return True
 
